@@ -51,7 +51,7 @@ public class IconModel {
             sb.append(PATH_ICONS);
             sb.append(File.separator);
             sb.append(fileString[0]);
-            sb.append(getDrawabaleIconPath(fileString[1], size));
+            sb.append(getDrawabaleIconPath(fileName, size));
 
             return sb.toString();
         } else {
@@ -66,6 +66,12 @@ public class IconModel {
         sb.append(size);
         sb.append(File.separator);
         sb.append(fileName);
+        return sb.toString();
+    }
+
+    private String getIconName(String shortName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(shortName);
         sb.append(UNDERBAR);
         sb.append(color);
         sb.append(UNDERBAR);
@@ -74,25 +80,41 @@ public class IconModel {
         return sb.toString();
     }
 
-    public String getCopyPath(Project project, String size) {
+    public String getResourcePath(Project project) {
         StringBuilder sb = new StringBuilder();
         sb.append(project.getBasePath());
         sb.append(COPY_DIR);
-        sb.append(getDrawabaleIconPath(fileName, size));
-
         return sb.toString();
     }
 
-    public void setIconName(String iconName) {
-        this.iconName = iconName;
+    public String getCopyPath(Project project, String size) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResourcePath(project));
+        sb.append(getDrawabaleIconPath(fileName, size));
+        return sb.toString();
     }
 
-    public void setColor(String color) {
+    public void setIconAndFileName(String iconName) {
+        if (iconName == null) {
+            this.iconName = "";
+            this.fileName = "";
+        } else {
+            this.iconName = iconName;
+            String[] fileString = this.iconName.split(File.separator);
+            this.fileName = getIconName(fileString[1]);
+        }
+    }
+
+    public void setColorAndFileName(String color) {
         this.color = color.toLowerCase();
+        String[] fileString = iconName.split(File.separator);
+        this.fileName = getIconName(fileString[1]);
     }
 
-    public void setDp(String dp) {
+    public void setDpAndFileName(String dp) {
         this.dp = dp;
+        String[] fileString = iconName.split(File.separator);
+        this.fileName = getIconName(fileString[1]);
     }
 
     public void setFileName(String fileName) {
@@ -139,4 +161,7 @@ public class IconModel {
         return xxxhdpi;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
 }

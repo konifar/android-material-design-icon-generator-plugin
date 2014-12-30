@@ -2,9 +2,9 @@ package com.konifar.material_icon_generator;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
-import com.konifar.material_icon_generator.FilterComboBox;
-import com.konifar.material_icon_generator.IconModel;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -22,10 +22,13 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private static final String TITLE = "Material Icon Generator";
     private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
-    private static final String ICON_CAUTION = "icons/alert/drawable-mdpi/ic_error_black_48dp.png";
-    private static final String ICON_DONE = "icons/action/drawable-mdpi/ic_done_black_48dp.png";
+
     private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
     private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
+
+    private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
+    private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
+    private static final String ERROR_RESOURCE_DIR_NOTHING = "Resource dir can not be found.";
 
     private Project project;
     private IconModel model;
@@ -64,6 +67,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         model = createModel();
 
+        model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
+        textFieldFileName.setText(model.getFileName());
         showIconPreview();
 
         init();
@@ -120,7 +125,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         comboBoxDp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                model.setDp((String) comboBoxDp.getSelectedItem());
+                model.setDpAndFileName((String) comboBoxDp.getSelectedItem());
+                textFieldFileName.setText(model.getFileName());
                 showIconPreview();
             }
         });
@@ -130,7 +136,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         comboBoxColor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                model.setColor((String)comboBoxColor.getSelectedItem());
+                model.setColorAndFileName((String) comboBoxColor.getSelectedItem());
+                textFieldFileName.setText(model.getFileName());
                 showIconPreview();
             }
         });
@@ -154,6 +161,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
+            System.out.println(model.getPath(size));
             ImageIcon icon = new ImageIcon(getClass().getResource(model.getPath(size)));
             imageLabel.setIcon(icon);
         } catch (Exception e) {
@@ -186,15 +194,15 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         comboBoxIcon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                if (model != null) model.setIconName((String)comboBoxIcon.getSelectedItem());
-                textFieldFileName.setText((String) comboBoxIcon.getSelectedItem());
-                if (model != null) model.setFileName(textFieldFileName.getText());
-                showIconPreview();
+                if (model != null) {
+                    model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
+                    textFieldFileName.setText(model.getFileName());
+                    showIconPreview();
+                }
             }
         });
 
         comboBoxIcon.setSelectedIndex(0);
-        textFieldFileName.setText((String) comboBoxIcon.getSelectedItem());
     }
 
     @Override
@@ -225,8 +233,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     "Icon created successfully.",
                     "Material design icon created",
                     JOptionPane.OK_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE,
-                    new ImageIcon(getClass().getResource(ICON_DONE)));
+                    JOptionPane.PLAIN_MESSAGE);
         }
     }
 
@@ -240,8 +247,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     copyFile.getName() + " already exists, overwrite ?",
                     "File exists",
                     JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    new ImageIcon(getClass().getResource(ICON_CAUTION)));
+                    JOptionPane.PLAIN_MESSAGE);
 
             switch (option) {
                 case JOptionPane.YES_OPTION:
@@ -324,4 +330,23 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         });
     }
 
+    @Nullable
+    @Override
+    protected ValidationInfo doValidate() {
+        if (StringUtils.isEmpty(textFieldFileName.getText().trim())) {
+            return new ValidationInfo(ERROR_FILE_NAME_EMPTY, textFieldFileName);
+        }
+
+        if (!checkBoxMdpi.isSelected() && !checkBoxHdpi.isSelected() && !checkBoxXhdpi.isSelected()
+                && !checkBoxXxhdpi.isSelected() && !checkBoxXxxhdpi.isSelected()) {
+            return new ValidationInfo(ERROR_SIZE_CHECK_EMPTY, checkBoxMdpi);
+        }
+
+        File resourcePath = new File(model.getResourcePath(project));
+        if (!resourcePath.exists() || !resourcePath.isDirectory()) {
+            return new ValidationInfo(ERROR_RESOURCE_DIR_NOTHING, panelMain);
+        }
+
+        return null;
+    }
 }

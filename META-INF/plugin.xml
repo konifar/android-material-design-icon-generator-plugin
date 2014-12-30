@@ -37,7 +37,7 @@
     <actions>
         <!-- Add your actions here -->
         <action id="MaterialDesignIconGenerateAction" class="com.konifar.material_icon_generator.MaterialDesignIconGenerateAction"
-                text="Material design icon generator" description="Material design icon generator">
+                text="Material design icon" description="Material design icon">
             <add-to-group group-id="NewGroup" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
         </action>
