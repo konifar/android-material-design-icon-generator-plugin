@@ -1,3 +1,5 @@
+package com.konifar.material_icon_generator;
+
 import com.intellij.openapi.project.Project;
 
 import java.io.File;

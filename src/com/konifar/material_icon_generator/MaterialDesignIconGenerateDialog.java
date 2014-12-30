@@ -1,6 +1,10 @@
+package com.konifar.material_icon_generator;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.JDOMUtil;
+import com.konifar.material_icon_generator.FilterComboBox;
+import com.konifar.material_icon_generator.IconModel;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -14,7 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public class MaterialDesignIconSetDialog extends DialogWrapper {
+public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private static final String TITLE = "Material Icon Generator";
     private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
@@ -41,7 +45,7 @@ public class MaterialDesignIconSetDialog extends DialogWrapper {
     private JLabel labelRepository;
     private JCheckBox checkBoxXxxhdpi;
 
-    public MaterialDesignIconSetDialog(@Nullable final Project project) {
+    public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
 
         this.project = project;

@@ -1,3 +1,5 @@
+package com.konifar.material_icon_generator;
+
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.swing.*;

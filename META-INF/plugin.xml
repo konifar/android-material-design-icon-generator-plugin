@@ -1,45 +1,46 @@
 <idea-plugin version="2">
-  <id>com.konifar.material_icon</id>
-  <name>Android Material Design Icon Setter</name>
-  <version>1.0</version>
-  <vendor email="yahpeycoy0403@gmail.com" url="http://konifar.com">KonifarPod</vendor>
+    <id>com.com.konifar.material_icon_generator</id>
+    <name>Android Material Design Icon Generator</name>
+    <version>1.0</version>
+    <vendor email="yahpeycoy0403@gmail.com" url="http://konifar.com">KonifarPod</vendor>
 
-  <description><![CDATA[
-      IntelliJ Plugin for Material Design Icon<br> Set .
+    <description><![CDATA[
+      Android Studio & IntelliJ Plugin for Material Design Icon.<br> This plugin help you to apply material design icon.
       ]]></description>
 
-  <change-notes><![CDATA[
-      First version
+    <change-notes><![CDATA[
+      First version released.
     ]]>
-  </change-notes>
+    </change-notes>
 
-  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="131"/>
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="131"/>
 
-  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
 
-  <application-components>
-    <!-- Add your application components here -->
-  </application-components>
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
 
-  <project-components>
-    <!-- Add your project components here -->
-  </project-components>
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
 
-  <actions>
-    <!-- Add your actions here -->
-    <action id="NewMaterialDesignIcon" class="MaterialDesignIconSetAction" text="Material design icon" description="New material design icon">
-      <add-to-group group-id="NewGroup" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
-    </action>
-  </actions>
+    <actions>
+        <!-- Add your actions here -->
+        <action id="MaterialDesignIconGenerateAction" class="com.konifar.material_icon_generator.MaterialDesignIconGenerateAction"
+                text="Material design icon generator" description="Material design icon generator">
+            <add-to-group group-id="NewGroup" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
+        </action>
+    </actions>
 
 </idea-plugin>
