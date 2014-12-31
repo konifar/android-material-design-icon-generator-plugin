@@ -35,6 +35,7 @@ public class FilterComboBox extends JComboBox {
         textfield.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
                 switch (event.getKeyCode()) {
+                    case KeyEvent.VK_ENTER:
                     case KeyEvent.VK_ESCAPE:
                         requestFocus(false);
                         break;
@@ -58,7 +59,10 @@ public class FilterComboBox extends JComboBox {
                         && getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
                     ComboPopup popup = (ComboPopup) getAccessibleContext().getAccessibleChild(0);
                     JList list = popup.getList();
-                    setSelectedItem(String.valueOf(list.getSelectedValue()));
+
+                    if (list.getSelectedValue() != null) {
+                        setSelectedItem(String.valueOf(list.getSelectedValue()));
+                    }
                 }
             }
         });

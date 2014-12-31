@@ -10,9 +10,16 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleState;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,9 +33,14 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
     private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
 
+    private static final String ERROR_ICON_NOT_SELECTED = "Please select icon.";
     private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
     private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING = "Resource dir can not be found.";
+
+    private static final String ICON_CONFIRM = "/icons/toggle/drawable-mdpi/ic_check_box_black_48dp.png";
+    private static final String ICON_WARNING = "/icons/alert/drawable-mdpi/ic_error_black_48dp.png";
+    private static final String ICON_DONE = "/icons/action/drawable-mdpi/ic_thumb_up_black_48dp.png";
 
     private Project project;
     private IconModel model;
@@ -111,11 +123,24 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initFileName() {
-        textFieldFileName.addActionListener(new ActionListener() {
+        textFieldFileName.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void actionPerformed(ActionEvent event) {
+            public void insertUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            private void setText() {
                 if (model != null) model.setFileName(textFieldFileName.getText());
-                showIconPreview();
             }
         });
     }
@@ -129,6 +154,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 showIconPreview();
             }
         });
+
+        comboBoxDp.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
+                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
+                        && AccessibleState.FOCUSED.equals(event.getNewValue())
+                        && comboBoxDp.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
+                    ComboPopup popup = (ComboPopup) comboBoxDp.getAccessibleContext().getAccessibleChild(0);
+                    JList list = popup.getList();
+                    comboBoxDp.setSelectedItem(String.valueOf(list.getSelectedValue()));
+                }
+            }
+        });
     }
 
     private void initColorComboBox() {
@@ -138,6 +175,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 model.setColorAndFileName((String) comboBoxColor.getSelectedItem());
                 textFieldFileName.setText(model.getFileName());
                 showIconPreview();
+            }
+        });
+
+        comboBoxColor.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
+                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
+                        && AccessibleState.FOCUSED.equals(event.getNewValue())
+                        && comboBoxColor.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
+                    ComboPopup popup = (ComboPopup) comboBoxColor.getAccessibleContext().getAccessibleChild(0);
+                    JList list = popup.getList();
+                    comboBoxColor.setSelectedItem(String.valueOf(list.getSelectedValue()));
+                }
             }
         });
     }
@@ -214,7 +263,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     "File already exists, overwrite this ?",
                     "File exists",
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.PLAIN_MESSAGE);
+                    JOptionPane.PLAIN_MESSAGE,
+                    new ImageIcon(getClass().getResource(ICON_WARNING)));
 
             if (option == JOptionPane.YES_OPTION) {
                 create();
@@ -226,17 +276,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void create() {
-        if (model.isMdpi() && createIcon(checkBoxMdpi.getText())) ;
-        if (model.isHdpi() && createIcon(checkBoxHdpi.getText())) ;
-        if (model.isXhdpi() && createIcon(checkBoxXhdpi.getText())) ;
-        if (model.isXxhdpi() && createIcon(checkBoxXxhdpi.getText())) ;
-        if (model.isXxxhdpi() && createIcon(checkBoxXxxhdpi.getText())) ;
+        if (model.isMdpi()) createIcon(checkBoxMdpi.getText());
+        if (model.isHdpi()) createIcon(checkBoxHdpi.getText());
+        if (model.isXhdpi()) createIcon(checkBoxXhdpi.getText());
+        if (model.isXxhdpi()) createIcon(checkBoxXxhdpi.getText());
+        if (model.isXxxhdpi()) createIcon(checkBoxXxxhdpi.getText());
 
         JOptionPane.showConfirmDialog(panelMain,
                 "Icon created successfully.",
                 "Material design icon created",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.PLAIN_MESSAGE,
+                new ImageIcon(getClass().getResource(ICON_DONE)));
     }
 
     private boolean alreadyFileExists() {
@@ -254,8 +305,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private boolean createIcon(String size) {
+        System.out.println(model.getCopyPath(project, size));
         File copyFile = new File(model.getCopyPath(project, size));
         String path = model.getPath(size);
+        System.out.println(path);
         String originalFile = getClass().getResource(path).getFile();
         return copyIcon(copyFile, new File(originalFile));
     }
@@ -324,6 +377,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
+        if (StringUtils.isEmpty(comboBoxIcon.getInputText().trim())) {
+            return new ValidationInfo(ERROR_ICON_NOT_SELECTED, comboBoxIcon);
+        }
+
         if (StringUtils.isEmpty(textFieldFileName.getText().trim())) {
             return new ValidationInfo(ERROR_FILE_NAME_EMPTY, textFieldFileName);
         }
@@ -342,11 +399,15 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     public boolean isConfirmed() {
-        int option = JOptionPane.showConfirmDialog(panelMain,
+        Object[] options = {"Yes", "No"};
+        int option = JOptionPane.showOptionDialog(panelMain,
                 "Are you sure you want to generate '" + model.getFileName() + "' ?",
                 "Confirmation",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.PLAIN_MESSAGE,
+                new ImageIcon(getClass().getResource(ICON_CONFIRM)),
+                options,
+                options[0]);
 
         return option == JOptionPane.OK_OPTION;
     }
