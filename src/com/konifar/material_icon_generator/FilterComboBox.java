@@ -34,7 +34,7 @@ public class FilterComboBox extends JComboBox {
         final JTextField textfield = (JTextField) this.getEditor().getEditorComponent();
         textfield.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                switch(event.getKeyCode()) {
+                switch (event.getKeyCode()) {
                     case KeyEvent.VK_ESCAPE:
                         requestFocus(false);
                         break;
@@ -65,7 +65,7 @@ public class FilterComboBox extends JComboBox {
     }
 
     public void filter(String inputText) {
-        List<String> filterList= new ArrayList<String>();
+        List<String> filterList = new ArrayList<String>();
         for (String text : comboBoxList) {
             if (text.toLowerCase().contains(inputText.toLowerCase())) {
                 filterList.add(text);
@@ -75,7 +75,7 @@ public class FilterComboBox extends JComboBox {
             setModel(new DefaultComboBoxModel(filterList.toArray()));
             setSelectedItem(inputText);
             showPopup();
-        }  else {
+        } else {
             hidePopup();
         }
     }

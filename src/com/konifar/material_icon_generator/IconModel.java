@@ -45,12 +45,9 @@ public class IconModel {
 
     public String getPath(String size) {
         if (iconName != null) {
-            String[] fileString = iconName.split(File.separator);
             StringBuilder sb = new StringBuilder();
             sb.append(File.separator);
             sb.append(PATH_ICONS);
-            sb.append(File.separator);
-            sb.append(fileString[0]);
             sb.append(getDrawabaleIconPath(fileName, size));
 
             return sb.toString();
@@ -61,6 +58,9 @@ public class IconModel {
 
     private String getDrawabaleIconPath(String fileName, String size) {
         StringBuilder sb = new StringBuilder();
+        sb.append(File.separator);
+        String[] fileString = iconName.split(File.separator);
+        sb.append(fileString[0]);
         sb.append(File.separator);
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);

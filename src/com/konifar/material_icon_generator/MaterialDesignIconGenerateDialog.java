@@ -32,7 +32,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private Project project;
     private IconModel model;
-    private boolean canceled;
 
     private JPanel panelMain;
     private JLabel imageLabel;
@@ -144,9 +143,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private IconModel createModel() {
-        final String iconName = (String)comboBoxIcon.getSelectedItem();
-        final String color = (String)comboBoxColor.getSelectedItem();
-        final String dp = (String)comboBoxDp.getSelectedItem();
+        final String iconName = (String) comboBoxIcon.getSelectedItem();
+        final String color = (String) comboBoxColor.getSelectedItem();
+        final String dp = (String) comboBoxDp.getSelectedItem();
         final String fileName = textFieldFileName.getText();
         final boolean mdpi = checkBoxMdpi.isSelected();
         final boolean hdpi = checkBoxHdpi.isSelected();
@@ -161,11 +160,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
-            System.out.println(model.getPath(size));
             ImageIcon icon = new ImageIcon(getClass().getResource(model.getPath(size)));
             imageLabel.setIcon(icon);
         } catch (Exception e) {
-            //
+            // Do nothing
         }
     }
 
@@ -209,64 +207,57 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     protected void doOKAction() {
         if (model == null) return;
 
-        canceled = false;
-        boolean success = false;
+        if (!isConfirmed()) return;
 
-        if (model.isMdpi() && createIcon(checkBoxMdpi.getText())) {
-            success = true;
-        }
-        if (model.isHdpi() && createIcon(checkBoxHdpi.getText())) {
-            success = true;
-        }
-        if (model.isXhdpi() && createIcon(checkBoxXhdpi.getText())) {
-            success = true;
-        }
-        if (model.isXxhdpi() && createIcon(checkBoxXxhdpi.getText())) {
-            success = true;
-        }
-        if (model.isXxxhdpi() && createIcon(checkBoxXxxhdpi.getText())) {
-            success = true;
-        }
-
-        if (success) {
-            JOptionPane.showConfirmDialog(panelMain,
-                    "Icon created successfully.",
-                    "Material design icon created",
-                    JOptionPane.OK_OPTION,
+        if (alreadyFileExists()) {
+            final int option = JOptionPane.showConfirmDialog(panelMain,
+                    "File already exists, overwrite this ?",
+                    "File exists",
+                    JOptionPane.YES_NO_OPTION,
                     JOptionPane.PLAIN_MESSAGE);
+
+            if (option == JOptionPane.YES_OPTION) {
+                create();
+            }
+        } else {
+            create();
         }
+
+    }
+
+    private void create() {
+        if (model.isMdpi() && createIcon(checkBoxMdpi.getText())) ;
+        if (model.isHdpi() && createIcon(checkBoxHdpi.getText())) ;
+        if (model.isXhdpi() && createIcon(checkBoxXhdpi.getText())) ;
+        if (model.isXxhdpi() && createIcon(checkBoxXxhdpi.getText())) ;
+        if (model.isXxxhdpi() && createIcon(checkBoxXxxhdpi.getText())) ;
+
+        JOptionPane.showConfirmDialog(panelMain,
+                "Icon created successfully.",
+                "Material design icon created",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private boolean alreadyFileExists() {
+        JCheckBox[] checkBoxes = {checkBoxMdpi, checkBoxHdpi, checkBoxXhdpi, checkBoxXxhdpi, checkBoxXxxhdpi};
+
+        for (JCheckBox checkBox : checkBoxes) {
+            if (checkBox.isSelected()) {
+                File copyFile = new File(model.getCopyPath(project, checkBox.getText()));
+                if (copyFile.exists() && copyFile.isFile()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean createIcon(String size) {
-        if (canceled) return false;
-
         File copyFile = new File(model.getCopyPath(project, size));
-
-        if (copyFile.exists() && copyFile.isFile()) {
-            int option = JOptionPane.showConfirmDialog(panelMain,
-                    copyFile.getName() + " already exists, overwrite ?",
-                    "File exists",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.PLAIN_MESSAGE);
-
-            switch (option) {
-                case JOptionPane.YES_OPTION:
-                    String path = model.getPath(size);
-                    String originalFile = getClass().getResource(path).getFile();
-                    return copyIcon(copyFile, new File(originalFile));
-                case JOptionPane.NO_OPTION:
-                    return false;
-                case JOptionPane.CANCEL_OPTION:
-                    canceled = true;
-                    return false;
-                default:
-                    return false;
-            }
-        } else {
-            String path = model.getPath(size);
-            String originalFile = getClass().getResource(path).getFile();
-            return copyIcon(copyFile, new File(originalFile));
-        }
+        String path = model.getPath(size);
+        String originalFile = getClass().getResource(path).getFile();
+        return copyIcon(copyFile, new File(originalFile));
     }
 
     private boolean copyIcon(File copyFile, File originalFile) {
@@ -348,5 +339,15 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         }
 
         return null;
+    }
+
+    public boolean isConfirmed() {
+        int option = JOptionPane.showConfirmDialog(panelMain,
+                "Are you sure you want to generate '" + model.getFileName() + "' ?",
+                "Confirmation",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+
+        return option == JOptionPane.OK_OPTION;
     }
 }
