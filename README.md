@@ -3,6 +3,8 @@ android-material-design-icon-generator-plugin
 
 This plugin help you to set material design icon to your project.
 
+https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/capture.gif
+
 #License
 
 ```
