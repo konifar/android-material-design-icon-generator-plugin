@@ -1,3 +1,5 @@
+package com.konifar.material_icon_generator;
+
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
@@ -43,13 +45,12 @@ public class IconModel {
 
     public String getPath(String size) {
         if (iconName != null) {
-            String[] fileString = iconName.split(File.separator);
             StringBuilder sb = new StringBuilder();
             sb.append(File.separator);
             sb.append(PATH_ICONS);
-            sb.append(File.separator);
-            sb.append(fileString[0]);
-            sb.append(getDrawabaleIconPath(fileString[1], size));
+
+            String[] fileString = iconName.split(File.separator);
+            sb.append(getLocalDrawabaleIconPath(getIconName(fileString[1]), size));
 
             return sb.toString();
         } else {
@@ -57,13 +58,22 @@ public class IconModel {
         }
     }
 
-    private String getDrawabaleIconPath(String fileName, String size) {
+    private String getLocalDrawabaleIconPath(String fileName, String size) {
         StringBuilder sb = new StringBuilder();
+        sb.append(File.separator);
+        String[] fileString = iconName.split(File.separator);
+        sb.append(fileString[0]);
         sb.append(File.separator);
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);
         sb.append(File.separator);
         sb.append(fileName);
+        return sb.toString();
+    }
+
+    private String getIconName(String shortName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(shortName);
         sb.append(UNDERBAR);
         sb.append(color);
         sb.append(UNDERBAR);
@@ -72,25 +82,46 @@ public class IconModel {
         return sb.toString();
     }
 
-    public String getCopyPath(Project project, String size) {
+    public String getResourcePath(Project project) {
         StringBuilder sb = new StringBuilder();
         sb.append(project.getBasePath());
         sb.append(COPY_DIR);
-        sb.append(getDrawabaleIconPath(fileName, size));
+        return sb.toString();
+    }
+
+    public String getCopyPath(Project project, String size) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResourcePath(project));
+        sb.append(File.separator);
+        sb.append(PATH_DRAWABLE_PREFIX);
+        sb.append(size);
+        sb.append(File.separator);
+        sb.append(fileName);
 
         return sb.toString();
     }
 
-    public void setIconName(String iconName) {
-        this.iconName = iconName;
+    public void setIconAndFileName(String iconName) {
+        if (iconName == null) {
+            this.iconName = "";
+            this.fileName = "";
+        } else {
+            this.iconName = iconName;
+            String[] fileString = this.iconName.split(File.separator);
+            if (fileString.length > 1) this.fileName = getIconName(fileString[1]);
+        }
     }
 
-    public void setColor(String color) {
+    public void setColorAndFileName(String color) {
         this.color = color.toLowerCase();
+        String[] fileString = iconName.split(File.separator);
+        if (fileString.length > 1) this.fileName = getIconName(fileString[1]);
     }
 
-    public void setDp(String dp) {
+    public void setDpAndFileName(String dp) {
         this.dp = dp;
+        String[] fileString = iconName.split(File.separator);
+        if (fileString.length > 1) this.fileName = getIconName(fileString[1]);
     }
 
     public void setFileName(String fileName) {
@@ -137,4 +168,7 @@ public class IconModel {
         return xxxhdpi;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
 }

@@ -1,3 +1,7 @@
+package com.konifar.material_icon_generator;
+
+import org.apache.commons.lang.StringUtils;
+
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.swing.*;
@@ -30,7 +34,8 @@ public class FilterComboBox extends JComboBox {
         final JTextField textfield = (JTextField) this.getEditor().getEditorComponent();
         textfield.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                switch(event.getKeyCode()) {
+                switch (event.getKeyCode()) {
+                    case KeyEvent.VK_ENTER:
                     case KeyEvent.VK_ESCAPE:
                         requestFocus(false);
                         break;
@@ -54,14 +59,17 @@ public class FilterComboBox extends JComboBox {
                         && getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
                     ComboPopup popup = (ComboPopup) getAccessibleContext().getAccessibleChild(0);
                     JList list = popup.getList();
-                    setSelectedItem(String.valueOf(list.getSelectedValue()));
+
+                    if (list.getSelectedValue() != null) {
+                        setSelectedItem(String.valueOf(list.getSelectedValue()));
+                    }
                 }
             }
         });
     }
 
     public void filter(String inputText) {
-        List<String> filterList= new ArrayList<String>();
+        List<String> filterList = new ArrayList<String>();
         for (String text : comboBoxList) {
             if (text.toLowerCase().contains(inputText.toLowerCase())) {
                 filterList.add(text);
@@ -71,7 +79,7 @@ public class FilterComboBox extends JComboBox {
             setModel(new DefaultComboBoxModel(filterList.toArray()));
             setSelectedItem(inputText);
             showPopup();
-        }  else {
+        } else {
             hidePopup();
         }
     }
