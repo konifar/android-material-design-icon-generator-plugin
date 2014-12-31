@@ -1,11 +1,11 @@
 <idea-plugin version="2">
-    <id>com.com.konifar.material_icon_generator</id>
+    <id>com.konifar.material_icon_generator</id>
     <name>Android Material Design Icon Generator</name>
     <version>1.0</version>
     <vendor email="yahpeycoy0403@gmail.com" url="http://konifar.com">KonifarPod</vendor>
 
     <description><![CDATA[
-      Android Studio & IntelliJ Plugin for Material Design Icon.<br> This plugin help you to apply material design icon.
+      Android Studio & IntelliJ Plugin for Material Design Icon.<br> This plugin help you to set material design icon in your app resources.
       ]]></description>
 
     <change-notes><![CDATA[
