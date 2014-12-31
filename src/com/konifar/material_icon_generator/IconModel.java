@@ -58,10 +58,9 @@ public class IconModel {
         this.xxxhdpi = xxxhdpi;
     }
 
-    public String getPath(String size) {
+    public String getLocalPath(String size) {
         if (iconName != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append(File.separator);
             sb.append(PATH_ICONS);
 
             String[] fileString = iconName.split(File.separator);

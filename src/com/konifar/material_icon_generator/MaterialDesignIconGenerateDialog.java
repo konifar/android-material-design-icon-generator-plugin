@@ -53,9 +53,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING = "Resource dir can not be found.";
 
-    private static final String ICON_CONFIRM = "/icons/toggle/drawable-mdpi/ic_check_box_black_48dp.png";
-    private static final String ICON_WARNING = "/icons/alert/drawable-mdpi/ic_error_black_48dp.png";
-    private static final String ICON_DONE = "/icons/action/drawable-mdpi/ic_thumb_up_black_48dp.png";
+    private static final String PACKAGE = "/com/konifar/material_icon_generator/";
+    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_48dp.png";
+    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_black_48dp.png";
+    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_black_48dp.png";
 
     private Project project;
     private IconModel model;
@@ -224,7 +225,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
-            ImageIcon icon = new ImageIcon(getClass().getResource(model.getPath(size)));
+            ImageIcon icon = new ImageIcon(getClass().getResource(PACKAGE + model.getLocalPath(size)));
             imageLabel.setIcon(icon);
         } catch (Exception e) {
             // Do nothing
@@ -241,7 +242,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         InputStream is = null;
         OutputStream os = null;
         try {
-            is = getClass().getResourceAsStream(FILE_ICON_COMBOBOX_XML);
+            is = getClass().getResourceAsStream(fileName);
             File targetFile = new File(fileName);
             os = new FileOutputStream(targetFile);
             byte[] buffer = new byte[8 * 1024];
@@ -346,38 +347,31 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private boolean createIcon(String size) {
-        System.out.println(model.getCopyPath(project, size));
         File copyFile = new File(model.getCopyPath(project, size));
-        String path = model.getPath(size);
-        System.out.println(path);
-        String originalFile = getClass().getResource(path).getFile();
-        return copyIcon(copyFile, new File(originalFile));
-    }
+        String path = model.getLocalPath(size);
 
-    private boolean copyIcon(File copyFile, File originalFile) {
         try {
             new File(copyFile.getParent()).mkdirs();
-            copyFile(originalFile, copyFile);
+            copyFile(path, copyFile);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            throw new IllegalStateException(e);
         }
     }
 
-    private void copyFile(File srcFile, File destFile) throws IOException {
-        InputStream in = new FileInputStream(srcFile);
+    private void copyFile(String originalPath, File destFile) throws IOException {
+        InputStream is = getClass().getResourceAsStream(originalPath);
         OutputStream os = new FileOutputStream(destFile);
 
         int len = -1;
         byte[] b = new byte[1000 * 1024];
         try {
-            while ((len = in.read(b, 0, b.length)) != -1) {
+            while ((len = is.read(b, 0, b.length)) != -1) {
                 os.write(b, 0, len);
             }
             os.flush();
         } finally {
-            if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
             if (os != null) try { os.close(); } catch (IOException e) { e.printStackTrace(); }
         }
     }
