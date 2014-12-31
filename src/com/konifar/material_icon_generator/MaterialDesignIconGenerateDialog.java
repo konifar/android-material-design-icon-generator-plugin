@@ -237,10 +237,36 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         return panelMain;
     }
 
+    private File getLocalFile(String fileName) {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = getClass().getResourceAsStream(FILE_ICON_COMBOBOX_XML);
+            File targetFile = new File(fileName);
+            os = new FileOutputStream(targetFile);
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            return targetFile;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (os != null) try { os.close(); } catch (IOException e) { e.printStackTrace();}
+            if (is != null) try { is.close(); } catch (IOException e) { e.printStackTrace();}
+        }
+    }
+
     private void initIconComboBox() {
         Document doc;
         try {
-            File templateFile = new File(getClass().getResource(FILE_ICON_COMBOBOX_XML).getFile());
+            File templateFile = getLocalFile(FILE_ICON_COMBOBOX_XML);
             doc = JDOMUtil.loadDocument(templateFile);
 
             List<Element> elements = doc.getRootElement().getChildren();
@@ -351,20 +377,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             }
             os.flush();
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
+            if (os != null) try { os.close(); } catch (IOException e) { e.printStackTrace(); }
         }
     }
 
