@@ -15,7 +15,7 @@ This plugin help you to set [material design icons](https://github.com/google/ma
 
 ##Install IntelliJ Plugin Repositories
 
-Sorry. Comming soon...
+Go `Preference > Plugins > Browse repositories`, then search `material`.
 
 #License
 
