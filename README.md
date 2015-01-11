@@ -17,6 +17,8 @@ This plugin help you to set [material design icons](https://github.com/google/ma
 
 Go `Preference > Plugins > Browse repositories`, then search `material`.
 
+![capture](https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/install.png)
+
 #License
 
 ```
