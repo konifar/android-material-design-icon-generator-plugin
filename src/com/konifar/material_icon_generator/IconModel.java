@@ -25,12 +25,12 @@ public class IconModel {
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
     private static final String UNDERBAR = "_";
     private static final String PNG_SUFFIX = ".png";
-    private static final String COPY_DIR = "/app/src/main/res";
 
     private String iconName;
     private String color;
     private String dp;
     private String fileName;
+    private String resDir;
 
     private boolean mdpi;
     private boolean hdpi;
@@ -42,6 +42,7 @@ public class IconModel {
                      String color,
                      String dp,
                      String fileName,
+                     String resDir,
                      boolean mdpi,
                      boolean hdpi,
                      boolean xhdpi,
@@ -51,6 +52,7 @@ public class IconModel {
         this.color = color.toLowerCase();
         this.dp = dp;
         this.fileName = fileName;
+        this.resDir = resDir;
         this.mdpi = mdpi;
         this.hdpi = hdpi;
         this.xhdpi = xhdpi;
@@ -97,9 +99,12 @@ public class IconModel {
     }
 
     public String getResourcePath(Project project) {
+        if (resDir.startsWith(project.getBasePath())) {
+            return resDir;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(project.getBasePath());
-        sb.append(COPY_DIR);
+        sb.append(resDir);
         return sb.toString();
     }
 
@@ -140,6 +145,10 @@ public class IconModel {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public void setResDir(String resDir) {
+        this.resDir = resDir;
     }
 
     public void setMdpi(boolean mdpi) {
@@ -184,5 +193,9 @@ public class IconModel {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getResDir() {
+        return resDir;
     }
 }
