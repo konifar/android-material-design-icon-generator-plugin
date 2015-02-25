@@ -1,7 +1,10 @@
 package com.konifar.material_icon_generator;
 
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.TextBrowseFolderListener;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
 import org.apache.commons.lang.StringUtils;
@@ -51,12 +54,14 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_ICON_NOT_SELECTED = "Please select icon.";
     private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
     private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
-    private static final String ERROR_RESOURCE_DIR_NOTHING = "Resource dir can not be found.";
+    private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Cannot find resource dir: ";
 
     private static final String PACKAGE = "/com/konifar/material_icon_generator/";
     private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_48dp.png";
     private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_black_48dp.png";
     private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_black_48dp.png";
+
+    private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
     private Project project;
     private IconModel model;
@@ -74,6 +79,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private JLabel labelOverview;
     private JLabel labelRepository;
     private JCheckBox checkBoxXxxhdpi;
+    private TextFieldWithBrowseButton resDirectoryName;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
@@ -87,6 +93,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initColorComboBox();
         initDpComboBox();
         initFileName();
+        initResDirectoryName();
         initSizeCheckBox();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
@@ -161,6 +168,32 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         });
     }
 
+    private void initResDirectoryName() {
+        resDirectoryName.setText(DEFAULT_RES_DIR);
+        resDirectoryName.addBrowseFolderListener(new TextBrowseFolderListener(
+                new FileChooserDescriptor(false, true, false, false, false, false), project));
+        resDirectoryName.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            private void setText() {
+                if (model != null) model.setResDir(resDirectoryName.getText());
+            }
+        });
+    }
+
     private void initDpComboBox() {
         comboBoxDp.addActionListener(new ActionListener() {
             @Override
@@ -212,12 +245,13 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         final String color = (String) comboBoxColor.getSelectedItem();
         final String dp = (String) comboBoxDp.getSelectedItem();
         final String fileName = textFieldFileName.getText();
+        final String resDir = resDirectoryName.getText();
         final boolean mdpi = checkBoxMdpi.isSelected();
         final boolean hdpi = checkBoxHdpi.isSelected();
         final boolean xdpi = checkBoxXhdpi.isSelected();
         final boolean xxdpi = checkBoxXxhdpi.isSelected();
         final boolean xxxdpi = checkBoxXxxhdpi.isSelected();
-        return new IconModel(iconName, color, dp, fileName, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
+        return new IconModel(iconName, color, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
     }
 
     private void showIconPreview() {
@@ -415,7 +449,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         File resourcePath = new File(model.getResourcePath(project));
         if (!resourcePath.exists() || !resourcePath.isDirectory()) {
-            return new ValidationInfo(ERROR_RESOURCE_DIR_NOTHING, panelMain);
+            return new ValidationInfo(ERROR_RESOURCE_DIR_NOTHING_PREFIX + resourcePath, panelMain);
         }
 
         return null;
