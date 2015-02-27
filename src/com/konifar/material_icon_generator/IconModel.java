@@ -28,6 +28,7 @@ public class IconModel {
 
     private String iconName;
     private String color;
+    private String customColor;
     private String dp;
     private String fileName;
     private String resDir;
@@ -39,7 +40,6 @@ public class IconModel {
     private boolean xxxhdpi;
 
     public IconModel(String iconName,
-                     String color,
                      String dp,
                      String fileName,
                      String resDir,
@@ -49,7 +49,7 @@ public class IconModel {
                      boolean xxhdpi,
                      boolean xxxhdpi) {
         this.iconName = iconName;
-        this.color = color.toLowerCase();
+        this.color = "white";
         this.dp = dp;
         this.fileName = fileName;
         this.resDir = resDir;
@@ -131,12 +131,6 @@ public class IconModel {
         }
     }
 
-    public void setColorAndFileName(String color) {
-        this.color = color.toLowerCase();
-        String[] fileString = iconName.split(File.separator);
-        if (fileString.length > 1) this.fileName = getIconName(fileString[1]);
-    }
-
     public void setDpAndFileName(String dp) {
         this.dp = dp;
         String[] fileString = iconName.split(File.separator);
@@ -197,5 +191,13 @@ public class IconModel {
 
     public String getResDir() {
         return resDir;
+    }
+
+    public String getCustomColor() {
+        return customColor;
+    }
+
+    public void setCustomColor(String customColor) {
+        this.customColor = customColor;
     }
 }
