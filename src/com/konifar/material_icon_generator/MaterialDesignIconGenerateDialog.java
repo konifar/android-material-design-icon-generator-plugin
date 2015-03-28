@@ -12,21 +12,27 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.Nullable;
+import sun.plugin.util.UIUtil;
 
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * Copyright 2014-2015 Material Design Icon Generator (Yusuke Konishi)
@@ -47,14 +53,15 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private static final String TITLE = "Material Icon Generator";
     private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
+    private static final String COLOR_PALETTE_COMBOBOX_XML = "palette.xml";
 
     private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
     private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
-
     private static final String ERROR_ICON_NOT_SELECTED = "Please select icon.";
     private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
     private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Cannot find resource dir: ";
+    private static final String ERROR_CUSTOM_COLOR = "Cannot parse custom color. Please provide color in hex format (#FFFFFF).";
 
     private static final String PACKAGE = "/com/konifar/material_icon_generator/";
     private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_48dp.png";
@@ -80,11 +87,14 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private JLabel labelRepository;
     private JCheckBox checkBoxXxxhdpi;
     private TextFieldWithBrowseButton resDirectoryName;
+    private JTextField textFieldCustomColor;
+    private final Map<String, String> paletteMap;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
 
         this.project = project;
+        paletteMap = new HashMap<String, String>();
 
         setTitle(TITLE);
         setResizable(true);
@@ -95,6 +105,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initFileName();
         initResDirectoryName();
         initSizeCheckBox();
+        initFileCustomColor();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
         initLabelLink(labelRepository, URL_REPOSITORY);
@@ -168,6 +179,45 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         });
     }
 
+    private void initFileCustomColor() {
+        textFieldCustomColor.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                setText();
+            }
+
+            private void setText() {
+                if (model != null) {
+                    if(StringUtils.isEmpty(textFieldCustomColor.getText())) {
+                        model.setCustomColor(null);
+                        showIconPreview();
+                        comboBoxColor.setSelectedItem("");
+                        return;
+                    }
+                    try {
+                        Color.decode(textFieldCustomColor.getText());
+                        model.setCustomColor(textFieldCustomColor.getText());
+                        showIconPreview();
+                    } catch(NumberFormatException e) {
+                        model.setCustomColor(null);
+                        comboBoxColor.setSelectedItem("");
+                        showIconPreview();
+                    }
+                }
+            }
+        });
+    }
+
     private void initResDirectoryName() {
         resDirectoryName.setText(DEFAULT_RES_DIR);
         resDirectoryName.addBrowseFolderListener(new TextBrowseFolderListener(
@@ -218,12 +268,29 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initColorComboBox() {
+        Document doc;
+        try {
+            File templateFile = getLocalFile(COLOR_PALETTE_COMBOBOX_XML);
+            doc = JDOMUtil.loadDocument(templateFile);
+
+            List<Element> elements = doc.getRootElement().getChildren();
+            comboBoxColor.removeAllItems();
+            comboBoxColor.addItem(" ");
+            for (org.jdom.Element element : elements) {
+                String key = element.getAttributeValue("id");
+                paletteMap.put(key, element.getText());
+                comboBoxColor.addItem(key);
+            }
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         comboBoxColor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                model.setColorAndFileName((String) comboBoxColor.getSelectedItem());
-                textFieldFileName.setText(model.getFileName());
-                showIconPreview();
+                String value = paletteMap.get((String) comboBoxColor.getSelectedItem());
+                textFieldCustomColor.setText(value);
             }
         });
 
@@ -238,11 +305,11 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 }
             }
         });
+        comboBoxColor.setSelectedIndex(0);
     }
 
     private IconModel createModel() {
         final String iconName = (String) comboBoxIcon.getSelectedItem();
-        final String color = (String) comboBoxColor.getSelectedItem();
         final String dp = (String) comboBoxDp.getSelectedItem();
         final String fileName = textFieldFileName.getText();
         final String resDir = resDirectoryName.getText();
@@ -251,7 +318,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         final boolean xdpi = checkBoxXhdpi.isSelected();
         final boolean xxdpi = checkBoxXxhdpi.isSelected();
         final boolean xxxdpi = checkBoxXxxhdpi.isSelected();
-        return new IconModel(iconName, color, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
+        return new IconModel(iconName, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
     }
 
     private void showIconPreview() {
@@ -259,7 +326,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
-            ImageIcon icon = new ImageIcon(getClass().getResource(PACKAGE + model.getLocalPath(size)));
+            InputStream is = getClass().getResourceAsStream(PACKAGE + model.getLocalPath(size));
+            BufferedImage img = colorImage(ImageIO.read(is));
+            ImageIcon icon = new ImageIcon(img);
             imageLabel.setIcon(icon);
         } catch (Exception e) {
             // Do nothing
@@ -383,7 +452,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private boolean createIcon(String size) {
         File copyFile = new File(model.getCopyPath(project, size));
         String path = model.getLocalPath(size);
-
         try {
             new File(copyFile.getParent()).mkdirs();
             copyFile(path, copyFile);
@@ -395,19 +463,41 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void copyFile(String originalPath, File destFile) throws IOException {
-        InputStream is = getClass().getResourceAsStream(originalPath);
-        OutputStream os = new FileOutputStream(destFile);
-
-        int len = -1;
-        byte[] b = new byte[1000 * 1024];
         try {
-            while ((len = is.read(b, 0, b.length)) != -1) {
-                os.write(b, 0, len);
-            }
-            os.flush();
-        } finally {
-            if (os != null) try { os.close(); } catch (IOException e) { e.printStackTrace(); }
+            InputStream is = getClass().getResourceAsStream(originalPath);
+            BufferedImage img = colorImage(ImageIO.read(is));
+            ImageIO.write(img, "png", destFile);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+    }
+
+    private BufferedImage colorImage(BufferedImage image) {
+        Color color =  null;
+        if(model.getCustomColor() != null) {
+            String colorString = model.getCustomColor();
+            color = Color.decode(colorString);
+        }
+        if(color == null) {
+            return image;
+        }
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        WritableRaster raster = newImage.getRaster();
+        for (int xx = 0; xx < width; xx++) {
+            for (int yy = 0; yy < height; yy++) {
+                Color originalColor = new Color(image.getRGB(xx, yy), true);
+                int[] pixels = new int[4];
+                pixels[0] = color.getRed();
+                pixels[1] = color.getGreen();
+                pixels[2] = color.getBlue();
+                pixels[3] = originalColor.getAlpha();//
+                raster.setPixel(xx, yy, pixels);
+            }
+        }
+        return newImage;
     }
 
     private void initLabelLink(JLabel label, final String url) {
