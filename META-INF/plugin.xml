@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.konifar.material_icon_generator</id>
     <name>Android Material Design Icon Generator</name>
-    <version>1.1</version>
+    <version>1.2</version>
     <vendor email="yahpeycoy0403@gmail.com" url="https://github.com/konifar/android-material-design-icon-generator-plugin">Android Material Design Icon Generator</vendor>
 
     <description><![CDATA[
