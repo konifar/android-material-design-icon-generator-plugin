@@ -185,7 +185,7 @@
           </component>
         </children>
       </grid>
-      <component id="12d0b" class="javax.swing.JTextField" binding="textFieldCustomColor">
+      <component id="12d0b" class="javax.swing.JTextField" binding="textFieldColorCode">
         <constraints>
           <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
             <preferred-size width="140" height="-1"/>
