@@ -203,7 +203,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                         return;
                     }
                     try {
-                        Color.decode(textFieldColorCode.getText());
+                        decodeColor(textFieldColorCode.getText());
                         model.setColorCode(textFieldColorCode.getText());
                         showIconPreview();
                     } catch(NumberFormatException e) {
@@ -484,7 +484,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         Color color =  null;
         if(model.getColorCode() != null) {
             String colorString = model.getColorCode();
-            color = Color.decode(colorString);
+            color = decodeColor(colorString);
         }
         if(color == null) return image;
 
@@ -500,11 +500,28 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 pixels[0] = color.getRed();
                 pixels[1] = color.getGreen();
                 pixels[2] = color.getBlue();
-                pixels[3] = originalColor.getAlpha();//
+                pixels[3] = combineAlpha(originalColor.getAlpha(), color.getAlpha());
                 raster.setPixel(xx, yy, pixels);
             }
         }
         return newImage;
+    }
+
+    /**
+     * {@link Color#decode} only supports opaque colors. This replicates that code but adds support
+     * for alpha stored as the highest byte.
+     */
+    private Color decodeColor(String argbColor) throws NumberFormatException {
+        long colorBytes = Long.decode(argbColor);
+        if (argbColor.length() < 8) {
+            colorBytes |= 0xFF << 24;
+        }
+        // Must cast to int otherwise java chooses the float constructor instead of the int constructor
+        return new Color((int) (colorBytes >> 16) & 0xFF, (int) (colorBytes >> 8) & 0xFF, (int) colorBytes & 0xFF, (int) (colorBytes >> 24) & 0xFF);
+    }
+
+    private int combineAlpha(int first, int second) {
+        return (first * second) / 255;
     }
 
     private void initLabelLink(JLabel label, final String url) {
