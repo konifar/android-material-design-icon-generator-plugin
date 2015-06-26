@@ -1,0 +1,50 @@
+<idea-plugin version="3">
+  <id>com.konifar.material_icon_generator</id>
+  <name>Android Material Design Icon Generator</name>
+  <version>1.3</version>
+  <vendor email="yahpeycoy0403@gmail.com" url="https://github.com/konifar/android-material-design-icon-generator-plugin">Android Material Design Icon Generator</vendor>
+
+  <description><![CDATA[
+      Android Studio & IntelliJ Plugin for Material Design Icon.<br> This plugin help you to set material design icon in your app resources.
+      ]]></description>
+
+  <change-notes><![CDATA[
+      1.3: Fixed a crashing issue in Windows
+      1.2: Add custom color function & Reduce unnecessary icons.
+      1.1: Add resource dir setting & Add document for Windows/Linux.
+      1.0: First version released.
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="131"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+    <action id="MaterialDesignIconGenerateAction"
+            class="com.konifar.material_icon_generator.MaterialDesignIconGenerateAction"
+            text="Material design icon" description="Material design icon" icon="/resources/menu_icon.png">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
+    </action>
+  </actions>
+
+</idea-plugin>
