@@ -2,17 +2,18 @@ package com.konifar.material_icon_generator;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.impl.ProjectImpl;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
-
+import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jetbrains.android.facet.AndroidFacet;
+import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.accessibility.AccessibleContext;
@@ -22,14 +23,15 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -221,6 +223,14 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private void initResDirectoryName() {
         resDirectoryName.setText(DEFAULT_RES_DIR);
+        List<AndroidFacet> facets =  AndroidUtils.getApplicationFacets(project);
+        //This code needs refined to support multiple facets and multiple resource directories
+        if (facets.size() >= 1) {
+            List<VirtualFile> allResourceDirectories = facets.get(0).getAllResourceDirectories();
+            if (allResourceDirectories.size() >= 1) {
+                resDirectoryName.setText(allResourceDirectories.get(0).getCanonicalPath());
+            }
+        }
         resDirectoryName.addBrowseFolderListener(new TextBrowseFolderListener(
                 new FileChooserDescriptor(false, true, false, false, false, false), project));
         resDirectoryName.getTextField().getDocument().addDocumentListener(new DocumentListener() {

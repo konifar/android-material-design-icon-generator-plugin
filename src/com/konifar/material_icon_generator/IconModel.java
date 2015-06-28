@@ -3,7 +3,6 @@ package com.konifar.material_icon_generator;
 import com.intellij.openapi.project.Project;
 
 import java.io.File;
-import java.util.regex.Pattern;
 
 /*
  * Copyright 2014-2015 Material Design Icon Generator (Yusuke Konishi)
@@ -108,13 +107,14 @@ public class IconModel {
     }
 
     public String getResourcePath(Project project) {
-        if (resDir.startsWith(project.getBasePath())) {
+        //This fails in Windows. Let's assume a complete path for now
+//        if (resDir.startsWith(project.getBasePath())) {
             return resDir;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(project.getBasePath());
-        sb.append(resDir);
-        return sb.toString();
+//        }
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(project.getBasePath());
+//        sb.append(resDir);
+//        return sb.toString();
     }
 
     public String getCopyPath(Project project, String size) {

@@ -28,6 +28,9 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.android</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
     </extensions>
