@@ -69,7 +69,7 @@ public class IconModel {
             StringBuilder sb = new StringBuilder();
             sb.append(PATH_ICONS);
 
-            String[] fileString = iconName.split(File.separator);
+            String[] fileString = iconName.split("/");
             sb.append(getLocalDrawabaleIconPath(getIconName(fileString[1]), size));
 
             return sb.toString();
@@ -80,13 +80,13 @@ public class IconModel {
 
     private String getLocalDrawabaleIconPath(String fileName, String size) {
         StringBuilder sb = new StringBuilder();
-        sb.append(File.separator);
-        String[] fileString = iconName.split(File.separator);
+        sb.append("/");
+        String[] fileString = iconName.split("/");
         sb.append(fileString[0]);
-        sb.append(File.separator);
+        sb.append("/");
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);
-        sb.append(File.separator);
+        sb.append("/");
         sb.append(fileName);
         return sb.toString();
     }
@@ -107,13 +107,14 @@ public class IconModel {
     }
 
     public String getResourcePath(Project project) {
-        if (resDir.startsWith(project.getBasePath())) {
+        //This fails in Windows. Let's assume a complete path for now
+//        if (resDir.startsWith(project.getBasePath())) {
             return resDir;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(project.getBasePath());
-        sb.append(resDir);
-        return sb.toString();
+//        }
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(project.getBasePath());
+//        sb.append(resDir);
+//        return sb.toString();
     }
 
     public String getCopyPath(Project project, String size) {
@@ -134,20 +135,20 @@ public class IconModel {
             this.fileName = "";
         } else {
             this.iconName = iconName;
-            String[] fileString = this.iconName.split(File.separator);
+            String[] fileString = this.iconName.split("/");
             if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
         }
     }
 
     public void setDpAndFileName(String dp) {
         this.dp = dp;
-        String[] fileString = iconName.split(File.separator);
+        String[] fileString = iconName.split("/");
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 
     public void setDisplayColorName(String displayColorName) {
         this.displayColorName = displayColorName;
-        String[] fileString = iconName.split(File.separator);
+        String[] fileString = iconName.split("/");
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 
