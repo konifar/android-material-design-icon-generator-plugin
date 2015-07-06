@@ -107,14 +107,7 @@ public class IconModel {
     }
 
     public String getResourcePath(Project project) {
-        //This fails in Windows. Let's assume a complete path for now
-//        if (resDir.startsWith(project.getBasePath())) {
-            return resDir;
-//        }
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(project.getBasePath());
-//        sb.append(resDir);
-//        return sb.toString();
+        return resDir;
     }
 
     public String getCopyPath(Project project, String size) {

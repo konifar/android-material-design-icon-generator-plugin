@@ -64,8 +64,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_ICON_NOT_SELECTED           = "Please select icon.";
     private static final String ERROR_FILE_NAME_EMPTY             = "Please input file name.";
     private static final String ERROR_SIZE_CHECK_EMPTY            = "Please check icon size.";
-    private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Cannot find resource dir: ";
-    private static final String ERROR_CUSTOM_COLOR                = "Cannot parse custom color. Please provide color in hex format (#FFFFFF).";
+    private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
+    private static final String ERROR_CUSTOM_COLOR                = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
     private static final String PACKAGE      = "/com/konifar/material_icon_generator/";
     private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_white_48dp.png";
@@ -222,9 +222,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initResDirectoryName() {
-        resDirectoryName.setText(DEFAULT_RES_DIR);
+        resDirectoryName.setText(project.getBasePath() + DEFAULT_RES_DIR);
         List<AndroidFacet> facets =  AndroidUtils.getApplicationFacets(project);
-        //This code needs refined to support multiple facets and multiple resource directories
+        // This code needs refined to support multiple facets and multiple resource directories
         if (facets.size() >= 1) {
             List<VirtualFile> allResourceDirectories = facets.get(0).getAllResourceDirectories();
             if (allResourceDirectories.size() >= 1) {
@@ -279,7 +279,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initColorComboBox() {
-        colorPaletteMap = new HashMap<>();
+        colorPaletteMap = new HashMap<String, String>();
 
         Document doc;
         try {
