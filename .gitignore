@@ -28,3 +28,6 @@ proguard/
 
 # IntelliJ
 .idea/
+
+#mac store
+.DS_Store
