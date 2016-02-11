@@ -33,6 +33,20 @@ Go `File > Settings... > IDE Settings > Plugins > Browse repositories`, then sea
 
 ![capture](https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/install.png)
 
+
+# Development
+
+```
+$ git clone https://github.com/konifar/android-material-design-icon-generator-plugin.git
+$ cd android-material-design-icon-generator-plugin
+$ git submodule init
+$ git submodule foreach git pull origin master
+$ python script/copy_icons.py
+$ python script/create_template.py
+```
+
+
+
 #License
 
 ```
