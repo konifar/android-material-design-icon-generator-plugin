@@ -288,22 +288,26 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         if (!isConfirmed()) return;
 
         if (alreadyFileExists()) {
-            final int option = JOptionPane.showConfirmDialog(panelMain,
+            Object[] options = {"Yes", "No"};
+            int option = JOptionPane.showOptionDialog(panelMain,
                     "File already exists, overwrite this ?",
                     "File exists",
-                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE,
-                    null);
+                    null,
+                    options,
+                    options[0]);
 
             if (option == JOptionPane.YES_OPTION) {
                 createNewIcons();
+            }else{
+                return;
             }
         } else {
             createNewIcons();
         }
-
         configs.save();
-//        super.doOKAction();
+        super.doOKAction();
     }
 
     private boolean alreadyFileExists() {
@@ -341,12 +345,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void showSuccDialog(){
-        JOptionPane.showConfirmDialog(panelMain,
-                "Icon created successfully.",
-                "Material design icon created",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null);
+        String[] options=new String[]{"OK"};
+        JOptionPane.showOptionDialog(panelMain, "Icon created successfully.",
+                "Material design icon created", JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
     }
 
 
@@ -439,12 +440,15 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     if (!isConfirmed()) return;
 
                     if (alreadyFileExists()) {
-                        final int option = JOptionPane.showConfirmDialog(panelMain,
+                        Object[] options = {"Yes", "No"};
+                        int option = JOptionPane.showOptionDialog(panelMain,
                                 "File already exists, overwrite this ?",
                                 "File exists",
-                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.OK_CANCEL_OPTION,
                                 JOptionPane.PLAIN_MESSAGE,
-                                null);
+                                null,
+                                options,
+                                options[0]);
 
                         if (option == JOptionPane.YES_OPTION) {
                             createNewIcons();
