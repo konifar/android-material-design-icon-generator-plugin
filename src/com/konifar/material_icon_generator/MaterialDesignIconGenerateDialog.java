@@ -566,7 +566,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         private void copyFile(String originalPath, File destFile) throws IOException {
             try {
                 InputStream is = getClass().getResourceAsStream(originalPath);
-                BufferedImage img = generateColoredIcon(ImageIO.read(is),iconInfo);
+                BufferedImage img =generateColoredIcon(ImageIO.read(is), iconInfo);
                 ImageIO.write(img, "png", destFile);
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -575,6 +575,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         private void showIconPreview() {
             try {
+                ImageIO.setUseCache(false);
                 String size = checkBoxXxhdpi.getText();
                 InputStream is = getClass().getResourceAsStream(configs.getIconLocalPath(size));
                 BufferedImage img = generateColoredIcon(ImageIO.read(is),iconInfo);
@@ -623,7 +624,12 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     pixels[0] = color.getRed();
                     pixels[1] = color.getGreen();
                     pixels[2] = color.getBlue();
-                    pixels[3] = combineAlpha(originalColor.getAlpha(), color.getAlpha());
+
+                    //a hack for bug.
+                    int blackHack=originalColor.getRGB() & 0x00ffffff;
+
+                    pixels[3] = combineAlpha(blackHack==0?0:originalColor.getAlpha(), color.getAlpha());
+
                     raster.setPixel(xx, yy, pixels);
                 }
             }
