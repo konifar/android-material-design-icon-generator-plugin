@@ -1,7 +1,7 @@
 <idea-plugin version="3">
     <id>com.konifar.material_icon_generator</id>
     <name>Android Material Design Icon Generator</name>
-    <version>1.4</version>
+    <version>1.5</version>
     <vendor email="yahpeycoy0403@gmail.com"
             url="https://github.com/konifar/android-material-design-icon-generator-plugin">Android
         Material Design Icon Generator
@@ -12,7 +12,8 @@
       ]]></description>
 
     <change-notes><![CDATA[
-      1.4: Added new material design icons.<br>
+      1.5: Added new material design icons 2.2.
+      1.4: Added new material design icons 2.1.<br>
       1.3: Fixed a crashing issue in Windows & Added transparency color support.<br>
       1.2: Added custom color function & Reduced unnecessary icons.<br>
       1.1: Added resource dir setting & document for Windows/Linux.<br>

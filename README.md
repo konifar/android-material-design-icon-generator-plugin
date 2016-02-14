@@ -26,6 +26,20 @@ On Linux or Windows:
 
 sorry,it do not work at this time.
 
+
+# Development
+
+```
+$ git clone https://github.com/konifar/android-material-design-icon-generator-plugin.git
+$ cd android-material-design-icon-generator-plugin
+$ git submodule init
+$ git submodule foreach git pull origin master
+$ python script/copy_icons.py
+$ python script/create_template.py
+```
+
+
+
 #License
 
 ```

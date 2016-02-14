@@ -46,6 +46,7 @@
     <option id="action/ic_credit_card">action/ic_credit_card</option>
     <option id="action/ic_dashboard">action/ic_dashboard</option>
     <option id="action/ic_date_range">action/ic_date_range</option>
+    <option id="action/ic_delete_forever">action/ic_delete_forever</option>
     <option id="action/ic_delete">action/ic_delete</option>
     <option id="action/ic_description">action/ic_description</option>
     <option id="action/ic_dns">action/ic_dns</option>
@@ -54,6 +55,7 @@
     <option id="action/ic_donut_large">action/ic_donut_large</option>
     <option id="action/ic_donut_small">action/ic_donut_small</option>
     <option id="action/ic_eject">action/ic_eject</option>
+    <option id="action/ic_euro_symbol">action/ic_euro_symbol</option>
     <option id="action/ic_event_seat">action/ic_event_seat</option>
     <option id="action/ic_event">action/ic_event</option>
     <option id="action/ic_exit_to_app">action/ic_exit_to_app</option>
@@ -70,6 +72,7 @@
     <option id="action/ic_flight_takeoff">action/ic_flight_takeoff</option>
     <option id="action/ic_flip_to_back">action/ic_flip_to_back</option>
     <option id="action/ic_flip_to_front">action/ic_flip_to_front</option>
+    <option id="action/ic_g_translate">action/ic_g_translate</option>
     <option id="action/ic_gavel">action/ic_gavel</option>
     <option id="action/ic_get_app">action/ic_get_app</option>
     <option id="action/ic_gif">action/ic_gif</option>
@@ -133,8 +136,10 @@
     <option id="action/ic_receipt">action/ic_receipt</option>
     <option id="action/ic_record_voice_over">action/ic_record_voice_over</option>
     <option id="action/ic_redeem">action/ic_redeem</option>
+    <option id="action/ic_remove_shopping_cart">action/ic_remove_shopping_cart</option>
     <option id="action/ic_reorder">action/ic_reorder</option>
     <option id="action/ic_report_problem">action/ic_report_problem</option>
+    <option id="action/ic_restore_page">action/ic_restore_page</option>
     <option id="action/ic_restore">action/ic_restore</option>
     <option id="action/ic_room">action/ic_room</option>
     <option id="action/ic_rounded_corner">action/ic_rounded_corner</option>
@@ -162,6 +167,7 @@
     <option id="action/ic_shop">action/ic_shop</option>
     <option id="action/ic_shopping_basket">action/ic_shopping_basket</option>
     <option id="action/ic_shopping_cart">action/ic_shopping_cart</option>
+    <option id="action/ic_speaker_notes_off">action/ic_speaker_notes_off</option>
     <option id="action/ic_speaker_notes">action/ic_speaker_notes</option>
     <option id="action/ic_spellcheck">action/ic_spellcheck</option>
     <option id="action/ic_star_rate">action/ic_star_rate</option>
@@ -220,11 +226,15 @@
     <option id="av/ic_album">av/ic_album</option>
     <option id="av/ic_art_track">av/ic_art_track</option>
     <option id="av/ic_av_timer">av/ic_av_timer</option>
+    <option id="av/ic_branding_watermark">av/ic_branding_watermark</option>
+    <option id="av/ic_call_to_action">av/ic_call_to_action</option>
     <option id="av/ic_closed_caption">av/ic_closed_caption</option>
     <option id="av/ic_equalizer">av/ic_equalizer</option>
     <option id="av/ic_explicit">av/ic_explicit</option>
     <option id="av/ic_fast_forward">av/ic_fast_forward</option>
     <option id="av/ic_fast_rewind">av/ic_fast_rewind</option>
+    <option id="av/ic_featured_play_list">av/ic_featured_play_list</option>
+    <option id="av/ic_featured_video">av/ic_featured_video</option>
     <option id="av/ic_fiber_dvr">av/ic_fiber_dvr</option>
     <option id="av/ic_fiber_manual_record">av/ic_fiber_manual_record</option>
     <option id="av/ic_fiber_new">av/ic_fiber_new</option>
@@ -248,11 +258,13 @@
     <option id="av/ic_music_video">av/ic_music_video</option>
     <option id="av/ic_new_releases">av/ic_new_releases</option>
     <option id="av/ic_not_interested">av/ic_not_interested</option>
+    <option id="av/ic_note">av/ic_note</option>
     <option id="av/ic_pause_circle_filled">av/ic_pause_circle_filled</option>
     <option id="av/ic_pause_circle_outline">av/ic_pause_circle_outline</option>
     <option id="av/ic_pause">av/ic_pause</option>
     <option id="av/ic_play_arrow">av/ic_play_arrow</option>
     <option id="av/ic_play_circle_filled">av/ic_play_circle_filled</option>
+    <option id="av/ic_play_circle_filled_white">av/ic_play_circle_filled_white</option>
     <option id="av/ic_play_circle_outline">av/ic_play_circle_outline</option>
     <option id="av/ic_playlist_add_check">av/ic_playlist_add_check</option>
     <option id="av/ic_playlist_add">av/ic_playlist_add</option>
@@ -279,6 +291,8 @@
     <option id="av/ic_subscriptions">av/ic_subscriptions</option>
     <option id="av/ic_subtitles">av/ic_subtitles</option>
     <option id="av/ic_surround_sound">av/ic_surround_sound</option>
+    <option id="av/ic_video_call">av/ic_video_call</option>
+    <option id="av/ic_video_label">av/ic_video_label</option>
     <option id="av/ic_video_library">av/ic_video_library</option>
     <option id="av/ic_videocam_off">av/ic_videocam_off</option>
     <option id="av/ic_videocam">av/ic_videocam</option>
@@ -326,6 +340,7 @@
     <option id="communication/ic_portable_wifi_off">communication/ic_portable_wifi_off</option>
     <option id="communication/ic_present_to_all">communication/ic_present_to_all</option>
     <option id="communication/ic_ring_volume">communication/ic_ring_volume</option>
+    <option id="communication/ic_rss_feed">communication/ic_rss_feed</option>
     <option id="communication/ic_screen_share">communication/ic_screen_share</option>
     <option id="communication/ic_speaker_phone">communication/ic_speaker_phone</option>
     <option id="communication/ic_stay_current_landscape">communication/ic_stay_current_landscape</option>
@@ -349,6 +364,7 @@
     <option id="content/ic_content_cut">content/ic_content_cut</option>
     <option id="content/ic_content_paste">content/ic_content_paste</option>
     <option id="content/ic_create">content/ic_create</option>
+    <option id="content/ic_delete_sweep">content/ic_delete_sweep</option>
     <option id="content/ic_drafts">content/ic_drafts</option>
     <option id="content/ic_filter_list">content/ic_filter_list</option>
     <option id="content/ic_flag">content/ic_flag</option>
@@ -357,6 +373,7 @@
     <option id="content/ic_gesture">content/ic_gesture</option>
     <option id="content/ic_inbox">content/ic_inbox</option>
     <option id="content/ic_link">content/ic_link</option>
+    <option id="content/ic_low_priority">content/ic_low_priority</option>
     <option id="content/ic_mail">content/ic_mail</option>
     <option id="content/ic_markunread">content/ic_markunread</option>
     <option id="content/ic_move_to_inbox">content/ic_move_to_inbox</option>
@@ -469,6 +486,7 @@
     <option id="editor/ic_border_style">editor/ic_border_style</option>
     <option id="editor/ic_border_top">editor/ic_border_top</option>
     <option id="editor/ic_border_vertical">editor/ic_border_vertical</option>
+    <option id="editor/ic_bubble_chart">editor/ic_bubble_chart</option>
     <option id="editor/ic_drag_handle">editor/ic_drag_handle</option>
     <option id="editor/ic_format_align_center">editor/ic_format_align_center</option>
     <option id="editor/ic_format_align_justify">editor/ic_format_align_justify</option>
@@ -506,12 +524,18 @@
     <option id="editor/ic_merge_type">editor/ic_merge_type</option>
     <option id="editor/ic_mode_comment">editor/ic_mode_comment</option>
     <option id="editor/ic_mode_edit">editor/ic_mode_edit</option>
+    <option id="editor/ic_monetization_on">editor/ic_monetization_on</option>
     <option id="editor/ic_money_off">editor/ic_money_off</option>
+    <option id="editor/ic_multiline_chart">editor/ic_multiline_chart</option>
+    <option id="editor/ic_pie_chart_outlined">editor/ic_pie_chart_outlined</option>
+    <option id="editor/ic_pie_chart">editor/ic_pie_chart</option>
     <option id="editor/ic_publish">editor/ic_publish</option>
     <option id="editor/ic_short_text">editor/ic_short_text</option>
+    <option id="editor/ic_show_chart">editor/ic_show_chart</option>
     <option id="editor/ic_space_bar">editor/ic_space_bar</option>
     <option id="editor/ic_strikethrough_s">editor/ic_strikethrough_s</option>
     <option id="editor/ic_text_fields">editor/ic_text_fields</option>
+    <option id="editor/ic_title">editor/ic_title</option>
     <option id="editor/ic_vertical_align_bottom">editor/ic_vertical_align_bottom</option>
     <option id="editor/ic_vertical_align_center">editor/ic_vertical_align_center</option>
     <option id="editor/ic_vertical_align_top">editor/ic_vertical_align_top</option>
@@ -597,6 +621,7 @@
     <option id="image/ic_brightness_7">image/ic_brightness_7</option>
     <option id="image/ic_broken_image">image/ic_broken_image</option>
     <option id="image/ic_brush">image/ic_brush</option>
+    <option id="image/ic_burst_mode">image/ic_burst_mode</option>
     <option id="image/ic_camera_alt">image/ic_camera_alt</option>
     <option id="image/ic_camera_front">image/ic_camera_front</option>
     <option id="image/ic_camera_rear">image/ic_camera_rear</option>
@@ -744,6 +769,7 @@
     <option id="maps/ic_directions_walk">maps/ic_directions_walk</option>
     <option id="maps/ic_directions">maps/ic_directions</option>
     <option id="maps/ic_edit_location">maps/ic_edit_location</option>
+    <option id="maps/ic_ev_station">maps/ic_ev_station</option>
     <option id="maps/ic_flight">maps/ic_flight</option>
     <option id="maps/ic_hotel">maps/ic_hotel</option>
     <option id="maps/ic_layers_clear">maps/ic_layers_clear</option>
@@ -787,10 +813,16 @@
     <option id="maps/ic_place">maps/ic_place</option>
     <option id="maps/ic_rate_review">maps/ic_rate_review</option>
     <option id="maps/ic_restaurant_menu">maps/ic_restaurant_menu</option>
+    <option id="maps/ic_restaurant">maps/ic_restaurant</option>
     <option id="maps/ic_satellite">maps/ic_satellite</option>
     <option id="maps/ic_store_mall_directory">maps/ic_store_mall_directory</option>
+    <option id="maps/ic_streetview">maps/ic_streetview</option>
+    <option id="maps/ic_subway">maps/ic_subway</option>
     <option id="maps/ic_terrain">maps/ic_terrain</option>
     <option id="maps/ic_traffic">maps/ic_traffic</option>
+    <option id="maps/ic_train">maps/ic_train</option>
+    <option id="maps/ic_tram">maps/ic_tram</option>
+    <option id="maps/ic_transfer_within_a_station">maps/ic_transfer_within_a_station</option>
     <option id="maps/ic_zoom_out_map">maps/ic_zoom_out_map</option>
     <option id="navigation/ic_apps">navigation/ic_apps</option>
     <option id="navigation/ic_arrow_back">navigation/ic_arrow_back</option>
@@ -807,8 +839,10 @@
     <option id="navigation/ic_close">navigation/ic_close</option>
     <option id="navigation/ic_expand_less">navigation/ic_expand_less</option>
     <option id="navigation/ic_expand_more">navigation/ic_expand_more</option>
+    <option id="navigation/ic_first_page">navigation/ic_first_page</option>
     <option id="navigation/ic_fullscreen_exit">navigation/ic_fullscreen_exit</option>
     <option id="navigation/ic_fullscreen">navigation/ic_fullscreen</option>
+    <option id="navigation/ic_last_page">navigation/ic_last_page</option>
     <option id="navigation/ic_menu">navigation/ic_menu</option>
     <option id="navigation/ic_more_horiz">navigation/ic_more_horiz</option>
     <option id="navigation/ic_more_vert">navigation/ic_more_vert</option>
@@ -830,6 +864,8 @@
     <option id="notification/ic_confirmation_number">notification/ic_confirmation_number</option>
     <option id="notification/ic_disc_full">notification/ic_disc_full</option>
     <option id="notification/ic_do_not_disturb_alt">notification/ic_do_not_disturb_alt</option>
+    <option id="notification/ic_do_not_disturb_off">notification/ic_do_not_disturb_off</option>
+    <option id="notification/ic_do_not_disturb_on">notification/ic_do_not_disturb_on</option>
     <option id="notification/ic_do_not_disturb">notification/ic_do_not_disturb</option>
     <option id="notification/ic_drive_eta">notification/ic_drive_eta</option>
     <option id="notification/ic_enhanced_encryption">notification/ic_enhanced_encryption</option>
@@ -852,6 +888,7 @@
     <option id="notification/ic_phone_missed">notification/ic_phone_missed</option>
     <option id="notification/ic_phone_paused">notification/ic_phone_paused</option>
     <option id="notification/ic_power">notification/ic_power</option>
+    <option id="notification/ic_priority_high">notification/ic_priority_high</option>
     <option id="notification/ic_rv_hookup">notification/ic_rv_hookup</option>
     <option id="notification/ic_sd_card">notification/ic_sd_card</option>
     <option id="notification/ic_sim_card_alert">notification/ic_sim_card_alert</option>
@@ -883,6 +920,7 @@
     <option id="places/ic_kitchen">places/ic_kitchen</option>
     <option id="places/ic_pool">places/ic_pool</option>
     <option id="places/ic_room_service">places/ic_room_service</option>
+    <option id="places/ic_rv_hookup">places/ic_rv_hookup</option>
     <option id="places/ic_smoke_free">places/ic_smoke_free</option>
     <option id="places/ic_smoking_rooms">places/ic_smoking_rooms</option>
     <option id="places/ic_spa">places/ic_spa</option>
@@ -909,6 +947,11 @@
     <option id="social/ic_poll">social/ic_poll</option>
     <option id="social/ic_public">social/ic_public</option>
     <option id="social/ic_school">social/ic_school</option>
+    <option id="social/ic_sentiment_dissatisfied">social/ic_sentiment_dissatisfied</option>
+    <option id="social/ic_sentiment_neutral">social/ic_sentiment_neutral</option>
+    <option id="social/ic_sentiment_satisfied">social/ic_sentiment_satisfied</option>
+    <option id="social/ic_sentiment_very_dissatisfied">social/ic_sentiment_very_dissatisfied</option>
+    <option id="social/ic_sentiment_very_satisfied">social/ic_sentiment_very_satisfied</option>
     <option id="social/ic_share">social/ic_share</option>
     <option id="social/ic_whatshot">social/ic_whatshot</option>
     <option id="toggle/ic_star_border">toggle/ic_star_border</option>
