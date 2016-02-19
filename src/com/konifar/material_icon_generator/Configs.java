@@ -272,13 +272,13 @@ public class Configs {
             StringBuilder sb=new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n");
             sb.append("<selector xmlns:android=\"http://schemas.android.com/apk/res/android\">\r\n");
-            sb.append(String.format("<item android:drawable=\"@drawable/%s\"/>\r\n",iconInfos[0].getName().replace("${name}",name)));
             if(iconB){
                 sb.append((String.format("<item android:state_pressed=\"true\" android:drawable=\"@drawable/%s\" />\r\n",iconInfos[1].getName().replace("${name}",name))));
             }
             if(iconC){
                 sb.append((String.format("<item android:state_enabled=\"false\" android:drawable=\"@drawable/%s\" />\r\n",iconInfos[2].getName().replace("${name}",name))));
             }
+            sb.append(String.format("<item android:drawable=\"@drawable/%s\"/>\r\n",iconInfos[0].getName().replace("${name}",name)));
             sb.append("</selector>");
             return sb.toString();
         }
