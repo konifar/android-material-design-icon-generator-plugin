@@ -19,7 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
@@ -29,12 +34,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -52,6 +55,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_SIZE_CHECK_EMPTY            = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
     private static final String ERROR_CUSTOM_COLOR                = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
+
+    private static final float SCALE_STEP=0.02f;
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
@@ -85,6 +90,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private JLabel imageC;
     private JComboBox comboBoxDp;
     private JCheckBox checkBoxAutoGenerateXml;
+    private JSlider scaleSlider;
 
     private Project project;
 
@@ -106,6 +112,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initResDirectoryName();
         initSizeCheckBox();
         initIconsCheckBox();
+        initScaleSlider();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
         initLabelLink(labelRepository, URL_REPOSITORY);
@@ -114,6 +121,17 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         textFieldFileName.setText(configs.getLastIconName());
         changeIconsPreview();
         init();
+    }
+
+    private void initScaleSlider(){
+        scaleSlider.setValue(configs.getScale());
+        scaleSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                configs.setScale(scaleSlider.getValue());
+                changeIconsPreview();
+            }
+        });
     }
 
     private void initIconsCheckBox() {
@@ -271,8 +289,12 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             @Override
             public void actionPerformed(ActionEvent event) {
                 configs.setLastChooseIcon((String) comboBoxIcon.getSelectedItem());
-                    textFieldFileName.setText(configs.getLastIconName());
-                    changeIconsPreview();
+                if(scaleSlider.getValue()!=0){
+                    scaleSlider.setValue(0);
+                }
+                configs.setScale(0);
+                textFieldFileName.setText(configs.getLastIconName());
+                changeIconsPreview();
             }
         });
 
@@ -571,8 +593,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         private void copyFile(String originalPath, File destFile) throws IOException {
             try {
-                InputStream is = getClass().getResourceAsStream(originalPath);
-                BufferedImage img =generateColoredIcon(ImageIO.read(is), iconInfo);
+                BufferedImage img =generateColoredIcon(originalPath, iconInfo,false);
                 ImageIO.write(img, "png", destFile);
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -583,11 +604,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             try {
                 ImageIO.setUseCache(false);
                 String size = checkBoxXxhdpi.getText();
-                InputStream is = getClass().getResourceAsStream(configs.getIconLocalPath(size));
-                BufferedImage img = generateColoredIcon(ImageIO.read(is),iconInfo);
+                BufferedImage img = generateColoredIcon(configs.getIconLocalPath(size), iconInfo,scaleSlider.getValueIsAdjusting());
                 ImageIcon icon = new ImageIcon(img);
                 lbImage.setIcon(icon);
-
             } catch (Exception e) {
                 // Do nothing
             }
@@ -610,7 +629,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             return (first * second) / 255;
         }
 
-        private BufferedImage generateColoredIcon(BufferedImage image,IconInfo iconInfo) {
+        private BufferedImage generateColoredIcon(String imagePath,IconInfo iconInfo,boolean drawBorder) {
+            BufferedImage image =null;
+            try {
+                InputStream is = getClass().getResourceAsStream(imagePath);
+                image =ImageIO.read(is);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if(image==null){
+                return null;
+            }
+
+
             Color color = null;
             if (configs != null) {
                 String colorString = iconInfo.getColor();
@@ -621,15 +653,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             int width = image.getWidth();
             int height = image.getHeight();
 
-            BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            WritableRaster raster = newImage.getRaster();
-            for (int xx = 0; xx < width; xx++) {
-                for (int yy = 0; yy < height; yy++) {
-                    Color originalColor = new Color(image.getRGB(xx, yy), true);
-                    int[] pixels = new int[4];
-                    pixels[0] = color.getRed();
-                    pixels[1] = color.getGreen();
-                    pixels[2] = color.getBlue();
+            float scale=1+configs.getScale()*SCALE_STEP;
+            Rectangle rectangle=calcCutRect(image, scale);
+            BufferedImage ImageCuted=cutImage(imagePath, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+
+
+            BufferedImage newImage0 = new BufferedImage(rectangle.width, rectangle.height, BufferedImage.TYPE_INT_ARGB);
+            int[] pixels = new int[4];
+            pixels[0] = color.getRed();
+            pixels[1] = color.getGreen();
+            pixels[2] = color.getBlue();
+            WritableRaster raster = newImage0.getRaster();
+            for (int xx = 0; xx < rectangle.width; xx++) {
+                for (int yy = 0; yy < rectangle.height; yy++) {
+                    Color originalColor = new Color(ImageCuted.getRGB(xx, yy), true);
 
                     //a hack for bug.
                     int blackHack=originalColor.getRGB() & 0x00ffffff;
@@ -639,8 +676,69 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     raster.setPixel(xx, yy, pixels);
                 }
             }
+
+            BufferedImage newImage=zoomImageTo(newImage0,width,height);
+
+            if(drawBorder){
+                raster = newImage.getRaster();
+                pixels[3] =0xff;
+                for(int n=0;n<2;n++){
+                    int h=height-1;
+                    int w=width-1;
+                    for(int x=0;x<width;x++){
+                        raster.setPixel(x, 0, pixels);
+                        raster.setPixel(x, h, pixels);
+                    }
+                    for(int y=0;y<height;y++){
+                        raster.setPixel(0, y, pixels);
+                        raster.setPixel(w, y, pixels);
+                    }
+                }
+            }
+
             return newImage;
         }
 
+        private BufferedImage zoomImageTo(BufferedImage src,int destWidth,int destHeight){
+            Image image = src.getScaledInstance(destWidth, destHeight, Image.SCALE_SMOOTH);
+            BufferedImage newImage = new BufferedImage(destWidth, destHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = newImage.createGraphics();
+            g.drawImage(image, 0, 0, null); // 绘制缩小后的图
+            g.dispose();
+            return newImage;
+        }
+
+        private BufferedImage cutImage(String srcImagePath,int x,int y,int width,int height){
+            try {
+                InputStream is = getClass().getResourceAsStream(srcImagePath);
+                Iterator<ImageReader> it = ImageIO.getImageReadersByFormatName("png");
+                ImageReader reader = it.next();
+                ImageInputStream iis = ImageIO.createImageInputStream(is);
+                reader.setInput(iis, true);
+                ImageReadParam param = reader.getDefaultReadParam();
+                Rectangle rect = new Rectangle(x, y, width, height);
+                param.setSourceRegion(rect);
+                BufferedImage bi = reader.read(0, param);
+                iis.close();
+                return bi;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private Rectangle calcCutRect(BufferedImage image,float scale){
+            int[] ws=calculate(image.getWidth(),scale);
+            int[] hs=calculate(image.getHeight(),scale);
+            return new Rectangle(ws[0], hs[0], ws[1], hs[1]);
+        }
+
+        private int[] calculate(int w1,float scale){
+            int x=(int)(w1*(1-1/scale));
+            int[] ret=new int[2];
+            ret[0]=x/2;
+            ret[1]=w1-x;
+            return ret;
+        }
     }
 }

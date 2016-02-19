@@ -37,6 +37,8 @@ public class Configs {
 
     private String lastChooseIcon;
 
+    private int scale=0;
+
     public Configs(){}
 
     public static Configs getConfigs(String configFilePath){
@@ -68,6 +70,14 @@ public class Configs {
         }
         configs.setConfigFilePath(configFilePath);
         return configs;
+    }
+
+    public int getScale() {
+        return scale;
+    }
+
+    public void setScale(int scale) {
+        this.scale = scale;
     }
 
     public String getLastChooseIcon() {
