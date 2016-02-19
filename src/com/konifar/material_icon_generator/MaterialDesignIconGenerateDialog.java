@@ -321,7 +321,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private void createNewIcons(){
         for(IconHandler handler:iconHandlers){
-            handler.createNewIcons();
+            if(handler.isIconEnable()){
+                handler.createNewIcons();
+            }
         }
         generateResXml();
         showSuccDialog();
@@ -539,6 +541,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 }
             }
             return false;
+        }
+
+        public boolean isIconEnable(){
+            return cbIcon.isSelected();
         }
 
         public void createNewIcons(){
