@@ -1,15 +1,16 @@
+
 Android Material Design Icon Generator Plugin
 =============================================
 
 This plugin help you to set [material design icons](https://github.com/google/material-design-icons) to your Android project.
 
-![capture](https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/capture.gif)
+![capture](https://github.com/cat9/android-material-design-icon-generator-plugin/blob/master/docs/capture.gif)
 
 #Installation
 
 ##Manually
 
-1. Download the [MaterialDesignIconGeneratorPlugin.jar](https://github.com/konifar/android-material-design-icon-generator-plugin/raw/master/MaterialDesignIconGeneratorPlugin.jar)
+1. Download the [MaterialDesignIconGeneratorPlugin.jar](https://github.com/cat9/android-material-design-icon-generator-plugin/blob/master/MaterialDesignIconGeneratorPlugin.jar)
 
 On MAC:
 
@@ -23,15 +24,7 @@ On Linux or Windows:
 
 ##Install IntelliJ Plugin Repositories
 
-On MAC:
-
-Go `Preference > Plugins > Browse repositories`, then search `material`.
-
-On Linux or Windows:
-
-Go `File > Settings... > IDE Settings > Plugins > Browse repositories`, then search `material`.
-
-![capture](https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/install.png)
+sorry,it do not work at this time.
 
 
 # Development

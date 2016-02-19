@@ -19,7 +19,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
@@ -29,194 +34,180 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-/*
- * Copyright 2014-2015 Material Design Icon Generator (Yusuke Konishi)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * Created by family_lee on 2016/2/8.
  */
 public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
-    private static final String TITLE                      = "Material Icon Generator";
-    private static final String FILE_ICON_COMBOBOX_XML     = "template.xml";
-    private static final String COLOR_PALETTE_COMBOBOX_XML = "palette.xml";
+    private static final String CONFIGS_FILE_PATH = "/meteriaConfig.conf";
+    private static final String TITLE = "Material Icon Generator";
+    private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
+    private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
 
-    private static final String URL_OVERVIEW                      = "http://google.github.io/material-design-icons";
-    private static final String URL_REPOSITORY                    = "https://github.com/google/material-design-icons";
     private static final String ERROR_ICON_NOT_SELECTED           = "Please select icon.";
     private static final String ERROR_FILE_NAME_EMPTY             = "Please input file name.";
     private static final String ERROR_SIZE_CHECK_EMPTY            = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
     private static final String ERROR_CUSTOM_COLOR                = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
-    private static final String PACKAGE      = "/com/konifar/material_icon_generator/";
-    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_white_48dp.png";
-    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_white_48dp.png";
-    private static final String ICON_DONE    = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_white_48dp.png";
+    private static final float SCALE_STEP=0.02f;
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
-    private Project             project;
-    private IconModel           model;
-    private Map<String, String> colorPaletteMap;
+    private static final String FILE_ICON_COMBOBOX_XML     = "template.xml";
 
-    private JPanel                    panelMain;
-    private JLabel                    imageLabel;
-    private JComboBox                 comboBoxDp;
-    private JComboBox                 comboBoxColor;
-    private JTextField                textFieldColorCode;
-    private JCheckBox                 checkBoxMdpi;
-    private FilterComboBox            comboBoxIcon;
-    private JTextField                textFieldFileName;
-    private JCheckBox                 checkBoxHdpi;
-    private JCheckBox                 checkBoxXhdpi;
-    private JCheckBox                 checkBoxXxhdpi;
-    private JLabel                    labelOverview;
-    private JLabel                    labelRepository;
-    private JCheckBox                 checkBoxXxxhdpi;
+    private JPanel panelMain;
+    private JTextField textFieldFileName;
+    private JCheckBox checkBoxMdpi;
+    private JCheckBox checkBoxHdpi;
+    private JCheckBox checkBoxXhdpi;
+    private JCheckBox checkBoxXxhdpi;
+    private JCheckBox checkBoxXxxhdpi;
     private TextFieldWithBrowseButton resDirectoryName;
+    private JTextField nameA;
+    private JTextField colorA;
+    private JLabel imageA;
+    private JButton btnCreateA;
+    private JButton btnCreateB;
+    private JButton btnCreateC;
+    private JLabel labelOverview;
+    private JLabel labelRepository;
+    private FilterComboBox comboBoxIcon;
+    private JTextField nameB;
+    private JTextField colorB;
+    private JTextField nameC;
+    private JTextField colorC;
+    private JCheckBox cbIconA;
+    private JCheckBox cbIconB;
+    private JCheckBox cbIconC;
+    private JLabel imageB;
+    private JLabel imageC;
+    private JComboBox comboBoxDp;
+    private JCheckBox checkBoxAutoGenerateXml;
+    private JSlider scaleSlider;
+
+    private Project project;
+
+    private Configs configs;
+
+    private IconHandler[] iconHandlers;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
 
         this.project = project;
-
+        configs=Configs.getConfigs(project.getBasePath()+CONFIGS_FILE_PATH);
         setTitle(TITLE);
         setResizable(true);
+        initIconHanlders();
 
         initIconComboBox();
-        initColorComboBox();
         initDpComboBox();
-        initFileName();
         initResDirectoryName();
         initSizeCheckBox();
-        initFileCustomColor();
+        initIconsCheckBox();
+        initScaleSlider();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
         initLabelLink(labelRepository, URL_REPOSITORY);
 
-        model = createModel();
 
-        model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
-        textFieldFileName.setText(model.getFileName());
-        showIconPreview();
-
+        textFieldFileName.setText(configs.getLastIconTemplateName());
+        changeIconsPreview();
         init();
     }
 
+    private void initScaleSlider(){
+        scaleSlider.setValue(configs.getScale());
+        scaleSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                configs.setScale(scaleSlider.getValue());
+                changeIconsPreview();
+            }
+        });
+    }
+
+    private void initIconsCheckBox() {
+        cbIconA.setSelected(configs.isIconA());
+        cbIconB.setSelected(configs.isIconB());
+        cbIconC.setSelected(configs.isIconC());
+        checkBoxAutoGenerateXml.setSelected(configs.isAutoGenXml());
+
+        cbIconA.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                configs.setIconA(cbIconA.isSelected());
+            }
+        });
+
+        cbIconB.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                configs.setIconB(cbIconB.isSelected());
+            }
+        });
+
+        cbIconC.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                configs.setIconC(cbIconC.isSelected());
+            }
+        });
+
+        checkBoxAutoGenerateXml.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                configs.setAutoGenXml(checkBoxAutoGenerateXml.isSelected());
+            }
+        });
+    }
+
     private void initSizeCheckBox() {
+        checkBoxMdpi.setSelected(configs.isMdpi());
+        checkBoxHdpi.setSelected(configs.isHdpi());
+        checkBoxXhdpi.setSelected(configs.isXhdpi());
+        checkBoxXxhdpi.setSelected(configs.isXxhdpi());
+        checkBoxXxxhdpi.setSelected(configs.isXxxhdpi());
+
         checkBoxMdpi.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setMdpi(checkBoxMdpi.isSelected());
+                configs.setMdpi(checkBoxMdpi.isSelected());
             }
         });
 
         checkBoxHdpi.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setHdpi(checkBoxHdpi.isSelected());
+                configs.setHdpi(checkBoxHdpi.isSelected());
             }
         });
 
         checkBoxXhdpi.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setXhdpi(checkBoxXhdpi.isSelected());
+                configs.setXhdpi(checkBoxXhdpi.isSelected());
             }
         });
 
         checkBoxXxhdpi.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setXxhdpi(checkBoxXxhdpi.isSelected());
+                configs.setXxhdpi(checkBoxXxhdpi.isSelected());
             }
         });
 
         checkBoxXxxhdpi.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setXxxhdpi(checkBoxXxxhdpi.isSelected());
-            }
-        });
-    }
-
-    private void initFileName() {
-        textFieldFileName.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            private void setText() {
-                if (model != null) model.setFileName(textFieldFileName.getText());
-            }
-        });
-    }
-
-    private void initFileCustomColor() {
-        textFieldColorCode.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            private void setText() {
-                if (model != null) {
-                    if (StringUtils.isEmpty(textFieldColorCode.getText())) {
-                        model.setColorCode(null);
-                        showIconPreview();
-                        comboBoxColor.setSelectedItem("");
-                        return;
-                    }
-                    try {
-                        decodeColor(textFieldColorCode.getText());
-                        model.setColorCode(textFieldColorCode.getText());
-                        showIconPreview();
-                    } catch (NumberFormatException e) {
-                        model.setColorCode(null);
-                        comboBoxColor.setSelectedItem("");
-                        showIconPreview();
-                    }
-                }
+                configs.setXxxhdpi(checkBoxXxxhdpi.isSelected());
             }
         });
     }
@@ -233,35 +224,22 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         }
         resDirectoryName.addBrowseFolderListener(new TextBrowseFolderListener(
                 new FileChooserDescriptor(false, true, false, false, false, false), project));
-        resDirectoryName.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent event) {
-                setText();
-            }
-
-            private void setText() {
-                if (model != null) model.setResDir(resDirectoryName.getText());
-            }
-        });
     }
 
     private void initDpComboBox() {
+        String dp=configs.getDp();
+        if(dp!=null &&  dp.length()>0){
+            comboBoxDp.setSelectedItem(dp);
+        }else{
+            comboBoxDp.setSelectedIndex(0);
+        }
+
+
         comboBoxDp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                model.setDpAndFileName((String) comboBoxDp.getSelectedItem());
-                textFieldFileName.setText(model.getFileName());
-                showIconPreview();
+                configs.setDp((String) comboBoxDp.getSelectedItem());
+                changeIconsPreview();
             }
         });
 
@@ -278,87 +256,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         });
     }
 
-    private void initColorComboBox() {
-        colorPaletteMap = new HashMap<String, String>();
-
-        Document doc;
-        try {
-            doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(COLOR_PALETTE_COMBOBOX_XML));
-
-            List<Element> elements = doc.getRootElement().getChildren();
-            for (org.jdom.Element element : elements) {
-                String key = element.getAttributeValue("id");
-                colorPaletteMap.put(key, element.getText());
-                comboBoxColor.addItem(key);
-            }
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        comboBoxColor.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                if (model != null) {
-                    model.setDisplayColorName((String) comboBoxColor.getSelectedItem());
-                    String value = colorPaletteMap.get(comboBoxColor.getSelectedItem());
-                    textFieldColorCode.setText(value);
-                    textFieldFileName.setText(model.getFileName());
-                }
-            }
-        });
-
-        comboBoxColor.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent event) {
-                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
-                        && AccessibleState.FOCUSED.equals(event.getNewValue())
-                        && comboBoxColor.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
-                    ComboPopup popup = (ComboPopup) comboBoxColor.getAccessibleContext().getAccessibleChild(0);
-                    JList list = popup.getList();
-                    comboBoxColor.setSelectedItem(String.valueOf(list.getSelectedValue()));
-                }
-            }
-        });
-
-        comboBoxColor.setSelectedIndex(0);
-        String value = colorPaletteMap.get(comboBoxColor.getSelectedItem());
-        textFieldColorCode.setText(value);
-    }
-
-    private IconModel createModel() {
-        final String iconName = (String) comboBoxIcon.getSelectedItem();
-        final String displayColorName = (String) comboBoxColor.getSelectedItem();
-        final String colorCode = textFieldColorCode.getText();
-        final String dp = (String) comboBoxDp.getSelectedItem();
-        final String fileName = textFieldFileName.getText();
-        final String resDir = resDirectoryName.getText();
-        final boolean mdpi = checkBoxMdpi.isSelected();
-        final boolean hdpi = checkBoxHdpi.isSelected();
-        final boolean xdpi = checkBoxXhdpi.isSelected();
-        final boolean xxdpi = checkBoxXxhdpi.isSelected();
-        final boolean xxxdpi = checkBoxXxxhdpi.isSelected();
-        return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
-    }
-
-    private void showIconPreview() {
-        if (model == null) return;
-
-        try {
-            String size = checkBoxXxhdpi.getText();
-            InputStream is = getClass().getResourceAsStream(model.getLocalPath(size));
-            BufferedImage img = generateColoredIcon(ImageIO.read(is));
-            ImageIcon icon = new ImageIcon(img);
-            imageLabel.setIcon(icon);
-        } catch (Exception e) {
-            // Do nothing
+    private void changeIconsPreview(){
+        for(IconHandler handler:iconHandlers){
+            handler.showIconPreview();
         }
     }
 
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
-        return panelMain;
+    private void initIconHanlders(){
+        iconHandlers=new IconHandler[3];
+        IconInfo[] iconInfos= configs.getIconInfos();
+        iconHandlers[0]=new IconHandler(iconInfos[0],nameA,colorA,cbIconA,imageA,btnCreateA);
+        iconHandlers[1]=new IconHandler(iconInfos[1],nameB,colorB,cbIconB,imageB,btnCreateB);
+        iconHandlers[2]=new IconHandler(iconInfos[2],nameC,colorC,cbIconC,imageC,btnCreateC);
     }
 
     private void initIconComboBox() {
@@ -366,7 +275,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         try {
             doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(FILE_ICON_COMBOBOX_XML));
 
-            List<Element> elements = doc.getRootElement().getChildren();
+            java.util.List<Element> elements = doc.getRootElement().getChildren();
             for (org.jdom.Element element : elements) {
                 comboBoxIcon.addItem(element.getText());
             }
@@ -376,137 +285,141 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             e.printStackTrace();
         }
 
+        if(StringUtils.isEmpty(configs.getLastChooseIcon())){
+            comboBoxIcon.setSelectedIndex(0);
+        }else{
+            comboBoxIcon.setSelectedItem(configs.getLastChooseIcon());
+        }
+
         comboBoxIcon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                if (model != null) {
-                    model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
-                    textFieldFileName.setText(model.getFileName());
-                    showIconPreview();
+                configs.setLastChooseIcon((String) comboBoxIcon.getSelectedItem());
+                if(scaleSlider.getValue()!=0){
+                    scaleSlider.setValue(0);
                 }
+                configs.setScale(0);
+                textFieldFileName.setText(configs.getLastIconName());
+                changeIconsPreview();
             }
         });
 
-        comboBoxIcon.setSelectedIndex(0);
     }
 
     @Override
     protected void doOKAction() {
-        if (model == null) return;
-
         if (!isConfirmed()) return;
 
         if (alreadyFileExists()) {
-            final int option = JOptionPane.showConfirmDialog(panelMain,
+            Object[] options = {"Yes", "No"};
+            int option = JOptionPane.showOptionDialog(panelMain,
                     "File already exists, overwrite this ?",
                     "File exists",
-                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE,
-                    new ImageIcon(getClass().getResource(ICON_WARNING)));
+                    null,
+                    options,
+                    options[0]);
 
             if (option == JOptionPane.YES_OPTION) {
-                create();
+                createNewIcons();
+            }else{
+                return;
             }
         } else {
-            create();
+            createNewIcons();
         }
-
-    }
-
-    private void create() {
-        if (model.isMdpi()) createIcon(checkBoxMdpi.getText());
-        if (model.isHdpi()) createIcon(checkBoxHdpi.getText());
-        if (model.isXhdpi()) createIcon(checkBoxXhdpi.getText());
-        if (model.isXxhdpi()) createIcon(checkBoxXxhdpi.getText());
-        if (model.isXxxhdpi()) createIcon(checkBoxXxxhdpi.getText());
-
-        JOptionPane.showConfirmDialog(panelMain,
-                "Icon created successfully.",
-                "Material design icon created",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(getClass().getResource(ICON_DONE)));
+        configs.setLastIconTemplateName(textFieldFileName.getText().trim());
+        configs.save();
+        super.doOKAction();
     }
 
     private boolean alreadyFileExists() {
-        JCheckBox[] checkBoxes = {checkBoxMdpi, checkBoxHdpi, checkBoxXhdpi, checkBoxXxhdpi, checkBoxXxxhdpi};
-
-        for (JCheckBox checkBox : checkBoxes) {
-            if (checkBox.isSelected()) {
-                File copyFile = new File(model.getCopyPath(project, checkBox.getText()));
-                if (copyFile.exists() && copyFile.isFile()) {
-                    return true;
-                }
+        for(IconHandler handler:iconHandlers){
+            if(handler.alreadyFileExists()){
+                return true;
             }
         }
         return false;
     }
 
-    private boolean createIcon(String size) {
-        File copyFile = new File(model.getCopyPath(project, size));
-        String path = model.getLocalPath(size);
-        try {
-            new File(copyFile.getParent()).mkdirs();
-            copyFile(path, copyFile);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private void copyFile(String originalPath, File destFile) throws IOException {
-        try {
-            InputStream is = getClass().getResourceAsStream(originalPath);
-            BufferedImage img = generateColoredIcon(ImageIO.read(is));
-            ImageIO.write(img, "png", destFile);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private BufferedImage generateColoredIcon(BufferedImage image) {
-        Color color = null;
-        if (model.getColorCode() != null) {
-            String colorString = model.getColorCode();
-            color = decodeColor(colorString);
-        }
-        if (color == null) return image;
-
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        WritableRaster raster = newImage.getRaster();
-        for (int xx = 0; xx < width; xx++) {
-            for (int yy = 0; yy < height; yy++) {
-                Color originalColor = new Color(image.getRGB(xx, yy), true);
-                int[] pixels = new int[4];
-                pixels[0] = color.getRed();
-                pixels[1] = color.getGreen();
-                pixels[2] = color.getBlue();
-                pixels[3] = combineAlpha(originalColor.getAlpha(), color.getAlpha());
-                raster.setPixel(xx, yy, pixels);
+    private void createNewIcons(){
+        for(IconHandler handler:iconHandlers){
+            if(handler.isIconEnable()){
+                handler.createNewIcons();
             }
         }
-        return newImage;
+        generateResXml();
+        showSuccDialog();
     }
 
-    /**
-     * {@link Color#decode} only supports opaque colors. This replicates that code but adds support
-     * for alpha stored as the highest byte.
-     */
-    private Color decodeColor(String argbColor) throws NumberFormatException {
-        long colorBytes = Long.decode(argbColor);
-        if (argbColor.length() < 8) {
-            colorBytes |= 0xFF << 24;
+    private void generateResXml(){
+        if(checkBoxAutoGenerateXml.isSelected()) {
+            String xml = configs.generateResXml(textFieldFileName.getText());
+            if (xml != null && xml.length() > 0) {
+                try {
+                    File file = new File(configs.getXmlFile(resDirectoryName.getText(), textFieldFileName.getText()));
+                    new File(file.getParent()).mkdirs();
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    fileOutputStream.write(xml.getBytes());
+                    fileOutputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        // Must cast to int otherwise java chooses the float constructor instead of the int constructor
-        return new Color((int) (colorBytes >> 16) & 0xFF, (int) (colorBytes >> 8) & 0xFF, (int) colorBytes & 0xFF, (int) (colorBytes >> 24) & 0xFF);
     }
 
-    private int combineAlpha(int first, int second) {
-        return (first * second) / 255;
+    private void showSuccDialog(){
+        String[] options=new String[]{"OK"};
+        JOptionPane.showOptionDialog(panelMain, "Icon created successfully.",
+                "Material design icon created", JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
+    }
+
+
+
+    public boolean isConfirmed() {
+        Object[] options = {"Yes", "No"};
+        int option = JOptionPane.showOptionDialog(panelMain,
+                "Are you sure you want to generate '" + textFieldFileName.getText().trim() + "' ?",
+                "Confirmation",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        return option == JOptionPane.OK_OPTION;
+    }
+
+    @Nullable
+    @Override
+    protected ValidationInfo doValidate() {
+        if (StringUtils.isEmpty(comboBoxIcon.getInputText().trim())) {
+            return new ValidationInfo(ERROR_ICON_NOT_SELECTED, comboBoxIcon);
+        }
+
+        if (StringUtils.isEmpty(textFieldFileName.getText().trim())) {
+            return new ValidationInfo(ERROR_FILE_NAME_EMPTY, textFieldFileName);
+        }
+
+        if (!checkBoxMdpi.isSelected() && !checkBoxHdpi.isSelected() && !checkBoxXhdpi.isSelected()
+                && !checkBoxXxhdpi.isSelected() && !checkBoxXxxhdpi.isSelected()) {
+            return new ValidationInfo(ERROR_SIZE_CHECK_EMPTY, checkBoxMdpi);
+        }
+
+        File resourcePath = new File(resDirectoryName.getText());
+        if (!resourcePath.exists() || !resourcePath.isDirectory()) {
+            return new ValidationInfo(ERROR_RESOURCE_DIR_NOTHING_PREFIX + resourcePath, panelMain);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        return panelMain;
     }
 
     private void initLabelLink(JLabel label, final String url) {
@@ -530,41 +443,305 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         });
     }
 
-    @Nullable
-    @Override
-    protected ValidationInfo doValidate() {
-        if (StringUtils.isEmpty(comboBoxIcon.getInputText().trim())) {
-            return new ValidationInfo(ERROR_ICON_NOT_SELECTED, comboBoxIcon);
+    private class IconHandler{
+        private IconInfo iconInfo;
+        private JTextField tvName;
+        private JTextField tvColor;
+        private JCheckBox cbIcon;
+        private JLabel lbImage;
+        private JButton btnCreate;
+
+        public IconHandler(IconInfo iconInfo,JTextField tvName,JTextField tvColor,JCheckBox cbIcon,JLabel lbImage,JButton btnCreate){
+            this.iconInfo=iconInfo;
+            this.tvName=tvName;
+            this.tvColor=tvColor;
+            this.cbIcon=cbIcon;
+            this.lbImage=lbImage;
+            this.tvName.setText(iconInfo.getName());
+            this.tvColor.setText(iconInfo.getColor());
+            this.btnCreate=btnCreate;
+            this.btnCreate.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (!isConfirmed()) return;
+
+                    if (alreadyFileExists()) {
+                        Object[] options = {"Yes", "No"};
+                        int option = JOptionPane.showOptionDialog(panelMain,
+                                "File already exists, overwrite this ?",
+                                "File exists",
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.PLAIN_MESSAGE,
+                                null,
+                                options,
+                                options[0]);
+
+                        if (option == JOptionPane.YES_OPTION) {
+                            createNewIcons();
+                            showSuccDialog();
+                        }
+                    } else {
+                        createNewIcons();
+                        showSuccDialog();
+                    }
+                    configs.setLastIconTemplateName(textFieldFileName.getText().trim());
+                    configs.save();
+                }
+            });
+            initFileCustomColor();
+            initFileCustomName();
         }
 
-        if (StringUtils.isEmpty(textFieldFileName.getText().trim())) {
-            return new ValidationInfo(ERROR_FILE_NAME_EMPTY, textFieldFileName);
+
+
+        private void initFileCustomColor() {
+            tvColor.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                private void setText() {
+                        if (StringUtils.isEmpty(tvColor.getText())) {
+                            iconInfo.setColor(null);
+                            showIconPreview();
+                            return;
+                        }
+                        try {
+                            decodeColor(tvColor.getText());
+                            iconInfo.setColor(tvColor.getText());
+                            showIconPreview();
+                        } catch (NumberFormatException e) {
+                            iconInfo.setColor(null);
+                            showIconPreview();
+                        }
+
+                }
+            });
         }
 
-        if (!checkBoxMdpi.isSelected() && !checkBoxHdpi.isSelected() && !checkBoxXhdpi.isSelected()
-                && !checkBoxXxhdpi.isSelected() && !checkBoxXxxhdpi.isSelected()) {
-            return new ValidationInfo(ERROR_SIZE_CHECK_EMPTY, checkBoxMdpi);
+        private void initFileCustomName() {
+            tvName.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent event) {
+                    setText();
+                }
+
+                private void setText() {
+                    iconInfo.setName(tvName.getText());
+                }
+            });
         }
 
-        File resourcePath = new File(model.getResourcePath(project));
-        if (!resourcePath.exists() || !resourcePath.isDirectory()) {
-            return new ValidationInfo(ERROR_RESOURCE_DIR_NOTHING_PREFIX + resourcePath, panelMain);
+        public boolean alreadyFileExists() {
+            JCheckBox[] checkBoxes = {checkBoxMdpi, checkBoxHdpi, checkBoxXhdpi, checkBoxXxhdpi, checkBoxXxxhdpi};
+
+            for (JCheckBox checkBox : checkBoxes) {
+                if (checkBox.isSelected()) {
+                    String fileName=configs.getDestFile(resDirectoryName.getText(),iconInfo.getName(),textFieldFileName.getText(),checkBox.getText());
+                            File copyFile = new File(fileName);
+                    if (copyFile.exists() && copyFile.isFile()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
-        return null;
-    }
+        public boolean isIconEnable(){
+            return cbIcon.isSelected();
+        }
 
-    public boolean isConfirmed() {
-        Object[] options = {"Yes", "No"};
-        int option = JOptionPane.showOptionDialog(panelMain,
-                "Are you sure you want to generate '" + model.getFileName() + "' ?",
-                "Confirmation",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(getClass().getResource(ICON_CONFIRM)),
-                options,
-                options[0]);
+        public void createNewIcons(){
+            JCheckBox[] checkBoxes = {checkBoxMdpi, checkBoxHdpi, checkBoxXhdpi, checkBoxXxhdpi, checkBoxXxxhdpi};
+            for (JCheckBox checkBox : checkBoxes) {
+                if (checkBox.isSelected()) {
+                    createIcon(checkBox.getText());
+                }
+            }
+        }
 
-        return option == JOptionPane.OK_OPTION;
+        private boolean createIcon(String size) {
+            File copyFile = new File(configs.getDestFile(resDirectoryName.getText(),iconInfo.getName(),textFieldFileName.getText(),size));
+            String path = configs.getIconLocalPath(size);
+            try {
+                new File(copyFile.getParent()).mkdirs();
+                copyFile(path, copyFile);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new IllegalStateException(e);
+            }
+        }
+
+        private void copyFile(String originalPath, File destFile) throws IOException {
+            try {
+                BufferedImage img =generateColoredIcon(originalPath, iconInfo,false);
+                ImageIO.write(img, "png", destFile);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private void showIconPreview() {
+            try {
+                ImageIO.setUseCache(false);
+                String size = checkBoxXxhdpi.getText();
+                BufferedImage img = generateColoredIcon(configs.getIconLocalPath(size), iconInfo,scaleSlider.getValueIsAdjusting());
+                ImageIcon icon = new ImageIcon(img);
+                lbImage.setIcon(icon);
+            } catch (Exception e) {
+                // Do nothing
+            }
+        }
+
+        /**
+         * {@link Color#decode} only supports opaque colors. This replicates that code but adds support
+         * for alpha stored as the highest byte.
+         */
+        private Color decodeColor(String argbColor) throws NumberFormatException {
+            long colorBytes = Long.decode(argbColor);
+            if (argbColor.length() < 8) {
+                colorBytes |= 0xFF << 24;
+            }
+            // Must cast to int otherwise java chooses the float constructor instead of the int constructor
+            return new Color((int) (colorBytes >> 16) & 0xFF, (int) (colorBytes >> 8) & 0xFF, (int) colorBytes & 0xFF, (int) (colorBytes >> 24) & 0xFF);
+        }
+
+        private int combineAlpha(int first, int second) {
+            return (first * second) / 255;
+        }
+
+        private BufferedImage generateColoredIcon(String imagePath,IconInfo iconInfo,boolean drawBorder) {
+            BufferedImage image =null;
+            try {
+                InputStream is = getClass().getResourceAsStream(imagePath);
+                image =ImageIO.read(is);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            if(image==null){
+                return null;
+            }
+
+
+            Color color = null;
+            if (configs != null) {
+                String colorString = iconInfo.getColor();
+                color = decodeColor(colorString);
+            }
+            if (color == null) return image;
+
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            float scale=1+configs.getScale()*SCALE_STEP;
+            Rectangle rectangle=calcCutRect(image, scale);
+            BufferedImage ImageCuted=cutImage(imagePath, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+
+
+            BufferedImage newImage0 = new BufferedImage(rectangle.width, rectangle.height, BufferedImage.TYPE_INT_ARGB);
+            int[] pixels = new int[4];
+            pixels[0] = color.getRed();
+            pixels[1] = color.getGreen();
+            pixels[2] = color.getBlue();
+            WritableRaster raster = newImage0.getRaster();
+            for (int xx = 0; xx < rectangle.width; xx++) {
+                for (int yy = 0; yy < rectangle.height; yy++) {
+                    Color originalColor = new Color(ImageCuted.getRGB(xx, yy), true);
+
+                    //a hack for bug.
+                    int blackHack=originalColor.getRGB() & 0x00ffffff;
+
+                    pixels[3] = combineAlpha(blackHack==0?0:originalColor.getAlpha(), color.getAlpha());
+
+                    raster.setPixel(xx, yy, pixels);
+                }
+            }
+
+            BufferedImage newImage=zoomImageTo(newImage0,width,height);
+
+            if(drawBorder){
+                raster = newImage.getRaster();
+                pixels[3] =0xff;
+                for(int n=0;n<2;n++){
+                    int h=height-1;
+                    int w=width-1;
+                    for(int x=0;x<width;x++){
+                        raster.setPixel(x, 0, pixels);
+                        raster.setPixel(x, h, pixels);
+                    }
+                    for(int y=0;y<height;y++){
+                        raster.setPixel(0, y, pixels);
+                        raster.setPixel(w, y, pixels);
+                    }
+                }
+            }
+
+            return newImage;
+        }
+
+        private BufferedImage zoomImageTo(BufferedImage src,int destWidth,int destHeight){
+            Image image = src.getScaledInstance(destWidth, destHeight, Image.SCALE_SMOOTH);
+            BufferedImage newImage = new BufferedImage(destWidth, destHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = newImage.createGraphics();
+            g.drawImage(image, 0, 0, null); // 绘制缩小后的图
+            g.dispose();
+            return newImage;
+        }
+
+        private BufferedImage cutImage(String srcImagePath,int x,int y,int width,int height){
+            try {
+                InputStream is = getClass().getResourceAsStream(srcImagePath);
+                Iterator<ImageReader> it = ImageIO.getImageReadersByFormatName("png");
+                ImageReader reader = it.next();
+                ImageInputStream iis = ImageIO.createImageInputStream(is);
+                reader.setInput(iis, true);
+                ImageReadParam param = reader.getDefaultReadParam();
+                Rectangle rect = new Rectangle(x, y, width, height);
+                param.setSourceRegion(rect);
+                BufferedImage bi = reader.read(0, param);
+                iis.close();
+                return bi;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private Rectangle calcCutRect(BufferedImage image,float scale){
+            int[] ws=calculate(image.getWidth(),scale);
+            int[] hs=calculate(image.getHeight(),scale);
+            return new Rectangle(ws[0], hs[0], ws[1], hs[1]);
+        }
+
+        private int[] calculate(int w1,float scale){
+            int x=(int)(w1*(1-1/scale));
+            int[] ret=new int[2];
+            ret[0]=x/2;
+            ret[1]=w1-x;
+            return ret;
+        }
     }
 }
