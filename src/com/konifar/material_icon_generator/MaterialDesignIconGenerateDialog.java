@@ -118,7 +118,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initLabelLink(labelRepository, URL_REPOSITORY);
 
 
-        textFieldFileName.setText(configs.getLastIconName());
+        textFieldFileName.setText(configs.getLastIconTemplateName());
         changeIconsPreview();
         init();
     }
@@ -285,6 +285,12 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             e.printStackTrace();
         }
 
+        if(StringUtils.isEmpty(configs.getLastChooseIcon())){
+            comboBoxIcon.setSelectedIndex(0);
+        }else{
+            comboBoxIcon.setSelectedItem(configs.getLastChooseIcon());
+        }
+
         comboBoxIcon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -298,11 +304,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             }
         });
 
-        if(StringUtils.isEmpty(configs.getLastChooseIcon())){
-            comboBoxIcon.setSelectedIndex(0);
-        }else{
-            comboBoxIcon.setSelectedItem(configs.getLastChooseIcon());
-        }
     }
 
     @Override
@@ -328,6 +329,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         } else {
             createNewIcons();
         }
+        configs.setLastIconTemplateName(textFieldFileName.getText().trim());
         configs.save();
         super.doOKAction();
     }
@@ -379,7 +381,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     public boolean isConfirmed() {
         Object[] options = {"Yes", "No"};
         int option = JOptionPane.showOptionDialog(panelMain,
-                "Are you sure you want to generate '" + configs.getLastIconName() + "' ?",
+                "Are you sure you want to generate '" + textFieldFileName.getText().trim() + "' ?",
                 "Confirmation",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
@@ -482,6 +484,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                         createNewIcons();
                         showSuccDialog();
                     }
+                    configs.setLastIconTemplateName(textFieldFileName.getText().trim());
                     configs.save();
                 }
             });

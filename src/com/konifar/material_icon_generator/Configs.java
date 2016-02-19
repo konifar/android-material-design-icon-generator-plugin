@@ -2,6 +2,7 @@ package com.konifar.material_icon_generator;
 
 import com.google.gson.Gson;
 import com.intellij.openapi.project.Project;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +37,8 @@ public class Configs {
     private String configFilePath;
 
     private String lastChooseIcon;
+
+    private String lastIconTemplateName;
 
     private int scale=0;
 
@@ -96,6 +99,18 @@ public class Configs {
             }
         }
         return lastChooseIcon;
+    }
+
+    public String getLastIconTemplateName() {
+        if(StringUtils.isEmpty(lastIconTemplateName)){
+            return getLastIconName();
+        }
+
+        return lastIconTemplateName;
+    }
+
+    public void setLastIconTemplateName(String lastIconTemplateName) {
+        this.lastIconTemplateName = lastIconTemplateName;
     }
 
     public String getDestFile(String resDir, String templateName, String name, String size) {
