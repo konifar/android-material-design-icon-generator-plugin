@@ -475,17 +475,28 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         int width = image.getWidth();
         int height = image.getHeight();
+        boolean hasAlpha = image.getColorModel().hasAlpha();
 
         BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         WritableRaster raster = newImage.getRaster();
         for (int xx = 0; xx < width; xx++) {
             for (int yy = 0; yy < height; yy++) {
-                Color originalColor = new Color(image.getRGB(xx, yy), true);
+                int originalPixel = image.getRGB(xx, yy);
+                int originalAlpha;
+                if (hasAlpha) {
+                    originalAlpha = new Color(originalPixel, true).getAlpha();
+                } else {
+                    // Due to ImageIO's issue, `hasAlpha` is assigned `false` although PNG file has alpha channel.
+                    // Regarding PNG files of Material Icon, in this case, the file is 1bit depth binary(BLACK or WHITE).
+                    // Therefore BLACK is `alpha = 0` and WHITE is `alpha = 255`
+                    originalAlpha = originalPixel == 0xFF000000 ? 0 : 255;
+                }
+
                 int[] pixels = new int[4];
                 pixels[0] = color.getRed();
                 pixels[1] = color.getGreen();
                 pixels[2] = color.getBlue();
-                pixels[3] = combineAlpha(originalColor.getAlpha(), color.getAlpha());
+                pixels[3] = combineAlpha(originalAlpha, color.getAlpha());
                 raster.setPixel(xx, yy, pixels);
             }
         }
