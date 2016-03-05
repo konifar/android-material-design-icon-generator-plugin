@@ -25,7 +25,7 @@ public class IconModel {
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
     private static final String UNDERBAR = "_";
     private static final String PNG_SUFFIX = ".png";
-    private static final String WHITE = "white";
+    private static final String BLACK = "black";
 
     private String iconName;
     private String displayColorName;
@@ -92,7 +92,7 @@ public class IconModel {
     }
 
     private String getIconName(String shortName) {
-        return getIconName(shortName, WHITE);
+        return getIconName(shortName, BLACK);
     }
 
     private String getIconName(String shortName, String colorName) {
@@ -145,56 +145,56 @@ public class IconModel {
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
     public void setResDir(String resDir) {
         this.resDir = resDir;
-    }
-
-    public void setMdpi(boolean mdpi) {
-        this.mdpi = mdpi;
-    }
-
-    public void setHdpi(boolean hdpi) {
-        this.hdpi = hdpi;
-    }
-
-    public void setXhdpi(boolean xhdpi) {
-        this.xhdpi = xhdpi;
-    }
-
-    public void setXxhdpi(boolean xxhdpi) {
-        this.xxhdpi = xxhdpi;
-    }
-
-    public void setXxxhdpi(boolean xxxhdpi) {
-        this.xxxhdpi = xxxhdpi;
     }
 
     public boolean isMdpi() {
         return mdpi;
     }
 
+    public void setMdpi(boolean mdpi) {
+        this.mdpi = mdpi;
+    }
+
     public boolean isHdpi() {
         return hdpi;
+    }
+
+    public void setHdpi(boolean hdpi) {
+        this.hdpi = hdpi;
     }
 
     public boolean isXhdpi() {
         return xhdpi;
     }
 
+    public void setXhdpi(boolean xhdpi) {
+        this.xhdpi = xhdpi;
+    }
+
     public boolean isXxhdpi() {
         return xxhdpi;
+    }
+
+    public void setXxhdpi(boolean xxhdpi) {
+        this.xxhdpi = xxhdpi;
     }
 
     public boolean isXxxhdpi() {
         return xxxhdpi;
     }
 
+    public void setXxxhdpi(boolean xxxhdpi) {
+        this.xxxhdpi = xxxhdpi;
+    }
+
     public String getFileName() {
         return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getColorCode() {
