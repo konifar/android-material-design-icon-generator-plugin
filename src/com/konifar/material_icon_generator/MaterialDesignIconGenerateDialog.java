@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -15,6 +16,10 @@ import org.jdom.JDOMException;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
@@ -23,15 +28,19 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -55,44 +64,53 @@ import java.util.Map;
  */
 public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
-    private static final String TITLE                      = "Material Icon Generator";
-    private static final String FILE_ICON_COMBOBOX_XML     = "template.xml";
+    private static final String TITLE = "Material Icon Generator";
+    private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
     private static final String COLOR_PALETTE_COMBOBOX_XML = "palette.xml";
 
-    private static final String URL_OVERVIEW                      = "http://google.github.io/material-design-icons";
-    private static final String URL_REPOSITORY                    = "https://github.com/google/material-design-icons";
-    private static final String ERROR_ICON_NOT_SELECTED           = "Please select icon.";
-    private static final String ERROR_FILE_NAME_EMPTY             = "Please input file name.";
-    private static final String ERROR_SIZE_CHECK_EMPTY            = "Please check icon size.";
+    private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
+    private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
+    private static final String ERROR_ICON_NOT_SELECTED = "Please select icon.";
+    private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
+    private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
-    private static final String ERROR_CUSTOM_COLOR                = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
+    private static final String ERROR_CUSTOM_COLOR = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
-    private static final String PACKAGE      = "/com/konifar/material_icon_generator/";
-    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_white_48dp.png";
-    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_white_48dp.png";
-    private static final String ICON_DONE    = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_white_48dp.png";
+    private static final String PACKAGE = "/com/konifar/material_icon_generator/";
+    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_24dp.png";
+    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_black_24dp.png";
+    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_black_24dp.png";
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
-    private Project             project;
-    private IconModel           model;
+    private Project project;
+    private IconModel model;
     private Map<String, String> colorPaletteMap;
 
-    private JPanel                    panelMain;
-    private JLabel                    imageLabel;
-    private JComboBox                 comboBoxDp;
-    private JComboBox                 comboBoxColor;
-    private JTextField                textFieldColorCode;
-    private JCheckBox                 checkBoxMdpi;
-    private FilterComboBox            comboBoxIcon;
-    private JTextField                textFieldFileName;
-    private JCheckBox                 checkBoxHdpi;
-    private JCheckBox                 checkBoxXhdpi;
-    private JCheckBox                 checkBoxXxhdpi;
-    private JLabel                    labelOverview;
-    private JLabel                    labelRepository;
-    private JCheckBox                 checkBoxXxxhdpi;
+    private JPanel panelMain;
+    private JLabel imageLabel;
+    private JComboBox comboBoxDp;
+    private JComboBox comboBoxColor;
+    private JTextField textFieldColorCode;
+    private FilterComboBox comboBoxIcon;
+    private JTextField textFieldFileName;
+    private JLabel labelOverview;
+    private JLabel labelRepository;
+    private JCheckBox checkBoxXxxhdpi;
     private TextFieldWithBrowseButton resDirectoryName;
+
+    private JRadioButton radioImage;
+    private JPanel panelImageSize;
+    private JCheckBox checkBoxMdpi;
+    private JCheckBox checkBoxHdpi;
+    private JCheckBox checkBoxXhdpi;
+    private JCheckBox checkBoxXxhdpi;
+
+    private JRadioButton radioVector;
+    private JPanel panelVector;
+    private JCheckBox checkBoxDrawable;
+    private JCheckBox checkBoxDrawableV21;
+    private JCheckBox checkBoxDrawableNoDpi;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
@@ -107,7 +125,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initDpComboBox();
         initFileName();
         initResDirectoryName();
+        initImageTypeRadioButton();
         initSizeCheckBox();
+        initVectorCheckBox();
         initFileCustomColor();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
@@ -120,6 +140,61 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         showIconPreview();
 
         init();
+    }
+
+    private void initImageTypeRadioButton() {
+        radioImage.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                toggleImageType(!radioImage.isSelected());
+            }
+        });
+
+        radioVector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                toggleImageType(radioVector.isSelected());
+            }
+        });
+
+        panelImageSize.addMouseListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                toggleImageType(radioImage.isSelected());
+            }
+        });
+
+        panelVector.addMouseListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                toggleImageType(!radioVector.isSelected());
+            }
+        });
+
+        radioImage.setSelected(true);
+    }
+
+    private void toggleImageType(boolean shouldVectorSelected) {
+        radioVector.setSelected(shouldVectorSelected);
+        radioImage.setSelected(!shouldVectorSelected);
+
+        panelVector.setEnabled(shouldVectorSelected);
+        panelImageSize.setEnabled(!shouldVectorSelected);
+
+        checkBoxDrawable.setEnabled(shouldVectorSelected);
+        checkBoxDrawableV21.setEnabled(shouldVectorSelected);
+        checkBoxDrawableNoDpi.setEnabled(shouldVectorSelected);
+
+        checkBoxHdpi.setEnabled(!shouldVectorSelected);
+        checkBoxMdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXhdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXxhdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXxxhdpi.setEnabled(!shouldVectorSelected);
+
+        if (model != null) {
+            model.setVectorTypeAndFileName(shouldVectorSelected);
+            textFieldFileName.setText(model.getFileName());
+        }
     }
 
     private void initSizeCheckBox() {
@@ -155,6 +230,29 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (model != null) model.setXxxhdpi(checkBoxXxxhdpi.isSelected());
+            }
+        });
+    }
+
+    private void initVectorCheckBox() {
+        checkBoxDrawable.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawable(checkBoxDrawable.isSelected());
+            }
+        });
+
+        checkBoxDrawableV21.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawableV21(checkBoxDrawableV21.isSelected());
+            }
+        });
+
+        checkBoxDrawableNoDpi.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawableNoDpi(checkBoxDrawableNoDpi.isSelected());
             }
         });
     }
@@ -223,7 +321,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private void initResDirectoryName() {
         resDirectoryName.setText(project.getBasePath() + DEFAULT_RES_DIR);
-        List<AndroidFacet> facets =  AndroidUtils.getApplicationFacets(project);
+        List<AndroidFacet> facets = AndroidUtils.getApplicationFacets(project);
         // This code needs refined to support multiple facets and multiple resource directories
         if (facets.size() >= 1) {
             List<VirtualFile> allResourceDirectories = facets.get(0).getAllResourceDirectories();
@@ -333,12 +431,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         final String dp = (String) comboBoxDp.getSelectedItem();
         final String fileName = textFieldFileName.getText();
         final String resDir = resDirectoryName.getText();
+
         final boolean mdpi = checkBoxMdpi.isSelected();
         final boolean hdpi = checkBoxHdpi.isSelected();
         final boolean xdpi = checkBoxXhdpi.isSelected();
         final boolean xxdpi = checkBoxXxhdpi.isSelected();
         final boolean xxxdpi = checkBoxXxxhdpi.isSelected();
-        return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
+
+        final boolean isVectorType = radioVector.isSelected();
+        final boolean drawable = checkBoxDrawable.isSelected();
+        final boolean drawableV21 = checkBoxDrawableV21.isSelected();
+        final boolean drawableNoDpi = checkBoxDrawableNoDpi.isSelected();
+
+        return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir,
+                mdpi, hdpi, xdpi, xxdpi, xxxdpi, isVectorType, drawable, drawableV21, drawableNoDpi);
     }
 
     private void showIconPreview() {
@@ -346,7 +452,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
-            InputStream is = getClass().getResourceAsStream(model.getLocalPath(size));
+            InputStream is = getClass().getResourceAsStream(model.getLocalPath(size, true));
             BufferedImage img = generateColoredIcon(ImageIO.read(is));
             ImageIcon icon = new ImageIcon(img);
             imageLabel.setIcon(icon);
@@ -414,11 +520,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void create() {
-        if (model.isMdpi()) createIcon(checkBoxMdpi.getText());
-        if (model.isHdpi()) createIcon(checkBoxHdpi.getText());
-        if (model.isXhdpi()) createIcon(checkBoxXhdpi.getText());
-        if (model.isXxhdpi()) createIcon(checkBoxXxhdpi.getText());
-        if (model.isXxxhdpi()) createIcon(checkBoxXxxhdpi.getText());
+        createIcons();
 
         JOptionPane.showConfirmDialog(panelMain,
                 "Icon created successfully.",
@@ -426,6 +528,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 new ImageIcon(getClass().getResource(ICON_DONE)));
+    }
+
+    private void createIcons() {
+        if (model.isVectorType()) {
+            if (model.isDrawable()) createVectorIcon(checkBoxDrawable.getText());
+            if (model.isDrawableV21()) createVectorIcon(checkBoxDrawableV21.getText());
+            if (model.isDrawableNoDpi()) createVectorIcon(checkBoxDrawableNoDpi.getText());
+        } else {
+            if (model.isMdpi()) createImageIcon(checkBoxMdpi.getText());
+            if (model.isHdpi()) createImageIcon(checkBoxHdpi.getText());
+            if (model.isXhdpi()) createImageIcon(checkBoxXhdpi.getText());
+            if (model.isXxhdpi()) createImageIcon(checkBoxXxhdpi.getText());
+            if (model.isXxxhdpi()) createImageIcon(checkBoxXxxhdpi.getText());
+        }
     }
 
     private boolean alreadyFileExists() {
@@ -442,7 +558,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         return false;
     }
 
-    private boolean createIcon(String size) {
+    private boolean createImageIcon(String size) {
         File copyFile = new File(model.getCopyPath(project, size));
         String path = model.getLocalPath(size);
         try {
@@ -452,6 +568,89 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
+        }
+    }
+
+    private boolean createVectorIcon(String vectorDrawableDir) {
+        File copyFile = new File(model.getVectorCopyPath(project, vectorDrawableDir));
+        String path = model.getVectorLocalPath();
+        try {
+            new File(copyFile.getParent()).mkdirs();
+            copyVectorFile(path, copyFile);
+            changeColorAndSize(copyFile);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void changeColorAndSize(File destFile) {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+            org.w3c.dom.Document doc = docBuilder.parse(destFile.getAbsolutePath());
+
+            // Edit Size
+            org.w3c.dom.Element rootElement = doc.getDocumentElement();
+            NamedNodeMap rootAttrs = rootElement.getAttributes();
+            rootAttrs.getNamedItem("android:width").setTextContent(model.getDp()); // 24dp
+            rootAttrs.getNamedItem("android:height").setTextContent(model.getDp()); // 24dp
+
+            String viewportSize = model.getViewportSize();
+            if (viewportSize != null) {
+                rootAttrs.getNamedItem("android:viewportWidth").setTextContent(viewportSize); // 24.0
+                rootAttrs.getNamedItem("android:viewportHeight").setTextContent(viewportSize); // 24.0
+            }
+
+            // Edit color
+            NodeList nodeList = rootElement.getElementsByTagName("path");
+            for (int i = 0, size = nodeList.getLength(); i < size; i++) {
+                NamedNodeMap pathAttrs = nodeList.item(i).getAttributes();
+                if (pathAttrs != null) {
+                    Node node = pathAttrs.getNamedItem("android:fillColor");
+                    if (node != null) node.setTextContent(model.getColorCode());
+                }
+            }
+
+            // Write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "4");
+            StreamResult result = new StreamResult(destFile);
+            transformer.transform(new DOMSource(doc), result);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void copyVectorFile(String originalPath, File destFile) throws IOException {
+        InputStream is = getClass().getResourceAsStream(originalPath);
+        OutputStream os = new FileOutputStream(destFile);
+
+        int len = -1;
+        byte[] b = new byte[1000 * 1024];
+        try {
+            while ((len = is.read(b, 0, b.length)) != -1) {
+                os.write(b, 0, len);
+            }
+            os.flush();
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

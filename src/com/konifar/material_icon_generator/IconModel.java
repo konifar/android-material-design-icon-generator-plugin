@@ -23,9 +23,13 @@ public class IconModel {
 
     private static final String PATH_ICONS = "icons";
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
+    private static final String VECTOR_SIZE_NAME = "anydpi-v21";
+    private static final String VECTOR_DEFAULT_DP = "24dp";
     private static final String UNDERBAR = "_";
     private static final String PNG_SUFFIX = ".png";
-    private static final String WHITE = "white";
+    private static final String XML_SUFFIX = ".xml";
+    private static final String BLACK = "black";
+    private static final String DP = "dp";
 
     private String iconName;
     private String displayColorName;
@@ -40,6 +44,11 @@ public class IconModel {
     private boolean xxhdpi;
     private boolean xxxhdpi;
 
+    private boolean isVectorType;
+    private boolean drawable;
+    private boolean drawableV21;
+    private boolean drawableNoDpi;
+
     public IconModel(String iconName,
                      String displayColorName,
                      String colorCode,
@@ -50,7 +59,11 @@ public class IconModel {
                      boolean hdpi,
                      boolean xhdpi,
                      boolean xxhdpi,
-                     boolean xxxhdpi) {
+                     boolean xxxhdpi,
+                     boolean isVectorType,
+                     boolean drawable,
+                     boolean drawableV21,
+                     boolean drawableNoDpi) {
         this.iconName = iconName;
         this.displayColorName = displayColorName;
         this.colorCode = colorCode;
@@ -62,20 +75,35 @@ public class IconModel {
         this.xhdpi = xhdpi;
         this.xxhdpi = xxhdpi;
         this.xxxhdpi = xxxhdpi;
+        this.isVectorType = isVectorType;
+        this.drawable = drawable;
+        this.drawableV21 = drawableV21;
+        this.drawableNoDpi = drawableNoDpi;
     }
 
-    public String getLocalPath(String size) {
+    public String getLocalPath(String size, boolean shouldForcePng) {
         if (iconName != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(PATH_ICONS);
 
             String[] fileString = iconName.split("/");
-            sb.append(getLocalDrawabaleIconPath(getIconName(fileString[1]), size));
+            String iconName = isVectorType && !shouldForcePng
+                    ? getVectorIconName(fileString[1])
+                    : getImageIconName(fileString[1]);
+            sb.append(getLocalDrawabaleIconPath(iconName, size));
 
             return sb.toString();
         } else {
             return "";
         }
+    }
+
+    public String getLocalPath(String size) {
+        return getLocalPath(size, false);
+    }
+
+    public String getVectorLocalPath() {
+        return getLocalPath(VECTOR_SIZE_NAME);
     }
 
     private String getLocalDrawabaleIconPath(String fileName, String size) {
@@ -91,18 +119,27 @@ public class IconModel {
         return sb.toString();
     }
 
-    private String getIconName(String shortName) {
-        return getIconName(shortName, WHITE);
+    private String getImageIconName(String shortName) {
+        return getIconName(shortName, BLACK, dp, PNG_SUFFIX);
+    }
+
+    private String getVectorIconName(String shortName) {
+        return getIconName(shortName, BLACK, VECTOR_DEFAULT_DP, XML_SUFFIX);
     }
 
     private String getIconName(String shortName, String colorName) {
+        String suffix = isVectorType ? XML_SUFFIX : PNG_SUFFIX;
+        return getIconName(shortName, colorName, this.dp, suffix);
+    }
+
+    private String getIconName(String shortName, String colorName, String dp, String suffix) {
         StringBuilder sb = new StringBuilder();
         sb.append(shortName);
         sb.append(UNDERBAR);
         sb.append(colorName);
         sb.append(UNDERBAR);
         sb.append(dp);
-        sb.append(PNG_SUFFIX);
+        sb.append(suffix);
         return sb.toString();
     }
 
@@ -116,6 +153,17 @@ public class IconModel {
         sb.append(File.separator);
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);
+        sb.append(File.separator);
+        sb.append(fileName);
+
+        return sb.toString();
+    }
+
+    public String getVectorCopyPath(Project project, String dir) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResourcePath(project));
+        sb.append(File.separator);
+        sb.append(dir);
         sb.append(File.separator);
         sb.append(fileName);
 
@@ -145,56 +193,74 @@ public class IconModel {
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setVectorTypeAndFileName(boolean vectorType) {
+        isVectorType = vectorType;
+        String[] fileString = iconName.split("/");
+        if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 
     public void setResDir(String resDir) {
         this.resDir = resDir;
     }
 
-    public void setMdpi(boolean mdpi) {
-        this.mdpi = mdpi;
-    }
-
-    public void setHdpi(boolean hdpi) {
-        this.hdpi = hdpi;
-    }
-
-    public void setXhdpi(boolean xhdpi) {
-        this.xhdpi = xhdpi;
-    }
-
-    public void setXxhdpi(boolean xxhdpi) {
-        this.xxhdpi = xxhdpi;
-    }
-
-    public void setXxxhdpi(boolean xxxhdpi) {
-        this.xxxhdpi = xxxhdpi;
-    }
-
     public boolean isMdpi() {
         return mdpi;
+    }
+
+    public void setMdpi(boolean mdpi) {
+        this.mdpi = mdpi;
     }
 
     public boolean isHdpi() {
         return hdpi;
     }
 
+    public void setHdpi(boolean hdpi) {
+        this.hdpi = hdpi;
+    }
+
     public boolean isXhdpi() {
         return xhdpi;
+    }
+
+    public void setXhdpi(boolean xhdpi) {
+        this.xhdpi = xhdpi;
     }
 
     public boolean isXxhdpi() {
         return xxhdpi;
     }
 
+    public void setXxhdpi(boolean xxhdpi) {
+        this.xxhdpi = xxhdpi;
+    }
+
     public boolean isXxxhdpi() {
         return xxxhdpi;
     }
 
+    public void setXxxhdpi(boolean xxxhdpi) {
+        this.xxxhdpi = xxxhdpi;
+    }
+
+    public String getDp() {
+        return dp;
+    }
+
+    public String getViewportSize() {
+        if (dp != null) {
+            return dp.replace(DP, "") + ".0";
+        } else {
+            return null;
+        }
+    }
+
     public String getFileName() {
         return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getColorCode() {
@@ -205,4 +271,31 @@ public class IconModel {
         this.colorCode = colorCode;
     }
 
+    public boolean isVectorType() {
+        return isVectorType;
+    }
+
+    public boolean isDrawable() {
+        return drawable;
+    }
+
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
+    }
+
+    public boolean isDrawableV21() {
+        return drawableV21;
+    }
+
+    public void setDrawableV21(boolean drawableV21) {
+        this.drawableV21 = drawableV21;
+    }
+
+    public boolean isDrawableNoDpi() {
+        return drawableNoDpi;
+    }
+
+    public void setDrawableNoDpi(boolean drawableNoDpi) {
+        this.drawableNoDpi = drawableNoDpi;
+    }
 }
