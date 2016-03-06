@@ -40,6 +40,11 @@ public class IconModel {
     private boolean xxhdpi;
     private boolean xxxhdpi;
 
+    private boolean isVectorType;
+    private boolean drawable;
+    private boolean drawableV21;
+    private boolean drawableNoDpi;
+
     public IconModel(String iconName,
                      String displayColorName,
                      String colorCode,
@@ -50,7 +55,11 @@ public class IconModel {
                      boolean hdpi,
                      boolean xhdpi,
                      boolean xxhdpi,
-                     boolean xxxhdpi) {
+                     boolean xxxhdpi,
+                     boolean isVectorType,
+                     boolean drawable,
+                     boolean drawableV21,
+                     boolean drawableNoDpi) {
         this.iconName = iconName;
         this.displayColorName = displayColorName;
         this.colorCode = colorCode;
@@ -62,6 +71,10 @@ public class IconModel {
         this.xhdpi = xhdpi;
         this.xxhdpi = xxhdpi;
         this.xxxhdpi = xxxhdpi;
+        this.isVectorType = isVectorType;
+        this.drawable = drawable;
+        this.drawableV21 = drawableV21;
+        this.drawableNoDpi = drawableNoDpi;
     }
 
     public String getLocalPath(String size) {
@@ -205,4 +218,35 @@ public class IconModel {
         this.colorCode = colorCode;
     }
 
+    public boolean isVectorType() {
+        return isVectorType;
+    }
+
+    public void setVectorType(boolean vectorType) {
+        isVectorType = vectorType;
+    }
+
+    public boolean isDrawable() {
+        return drawable;
+    }
+
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
+    }
+
+    public boolean isDrawableV21() {
+        return drawableV21;
+    }
+
+    public void setDrawableV21(boolean drawableV21) {
+        this.drawableV21 = drawableV21;
+    }
+
+    public boolean isDrawableNoDpi() {
+        return drawableNoDpi;
+    }
+
+    public void setDrawableNoDpi(boolean drawableNoDpi) {
+        this.drawableNoDpi = drawableNoDpi;
+    }
 }

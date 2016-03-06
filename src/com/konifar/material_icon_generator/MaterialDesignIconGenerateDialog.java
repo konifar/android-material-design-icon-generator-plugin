@@ -118,6 +118,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initResDirectoryName();
         initImageTypeRadioButton();
         initSizeCheckBox();
+        initVectorCheckBox();
         initFileCustomColor();
 
         initLabelLink(labelOverview, URL_OVERVIEW);
@@ -180,6 +181,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         checkBoxXhdpi.setEnabled(!shouldVectorSelected);
         checkBoxXxhdpi.setEnabled(!shouldVectorSelected);
         checkBoxXxxhdpi.setEnabled(!shouldVectorSelected);
+
+        if (model != null) model.setVectorType(shouldVectorSelected);
     }
 
     private void initSizeCheckBox() {
@@ -215,6 +218,29 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (model != null) model.setXxxhdpi(checkBoxXxxhdpi.isSelected());
+            }
+        });
+    }
+
+    private void initVectorCheckBox() {
+        checkBoxDrawable.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawable(checkBoxDrawable.isSelected());
+            }
+        });
+
+        checkBoxDrawableV21.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawableV21(checkBoxDrawableV21.isSelected());
+            }
+        });
+
+        checkBoxDrawableNoDpi.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent event) {
+                if (model != null) model.setDrawableNoDpi(checkBoxDrawableNoDpi.isSelected());
             }
         });
     }
@@ -393,12 +419,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         final String dp = (String) comboBoxDp.getSelectedItem();
         final String fileName = textFieldFileName.getText();
         final String resDir = resDirectoryName.getText();
+
         final boolean mdpi = checkBoxMdpi.isSelected();
         final boolean hdpi = checkBoxHdpi.isSelected();
         final boolean xdpi = checkBoxXhdpi.isSelected();
         final boolean xxdpi = checkBoxXxhdpi.isSelected();
         final boolean xxxdpi = checkBoxXxxhdpi.isSelected();
-        return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir, mdpi, hdpi, xdpi, xxdpi, xxxdpi);
+
+        final boolean isVectorType = radioVector.isSelected();
+        final boolean drawable = checkBoxDrawable.isSelected();
+        final boolean drawableV21 = checkBoxDrawableV21.isSelected();
+        final boolean drawableNoDpi = checkBoxDrawableNoDpi.isSelected();
+
+        return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir,
+                mdpi, hdpi, xdpi, xxdpi, xxxdpi, isVectorType, drawable, drawableV21, drawableNoDpi);
     }
 
     private void showIconPreview() {
