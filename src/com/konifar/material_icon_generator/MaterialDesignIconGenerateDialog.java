@@ -55,44 +55,53 @@ import java.util.Map;
  */
 public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
-    private static final String TITLE                      = "Material Icon Generator";
-    private static final String FILE_ICON_COMBOBOX_XML     = "template.xml";
+    private static final String TITLE = "Material Icon Generator";
+    private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
     private static final String COLOR_PALETTE_COMBOBOX_XML = "palette.xml";
 
-    private static final String URL_OVERVIEW                      = "http://google.github.io/material-design-icons";
-    private static final String URL_REPOSITORY                    = "https://github.com/google/material-design-icons";
-    private static final String ERROR_ICON_NOT_SELECTED           = "Please select icon.";
-    private static final String ERROR_FILE_NAME_EMPTY             = "Please input file name.";
-    private static final String ERROR_SIZE_CHECK_EMPTY            = "Please check icon size.";
+    private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
+    private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
+    private static final String ERROR_ICON_NOT_SELECTED = "Please select icon.";
+    private static final String ERROR_FILE_NAME_EMPTY = "Please input file name.";
+    private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
-    private static final String ERROR_CUSTOM_COLOR                = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
+    private static final String ERROR_CUSTOM_COLOR = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
-    private static final String PACKAGE      = "/com/konifar/material_icon_generator/";
+    private static final String PACKAGE = "/com/konifar/material_icon_generator/";
     private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_white_48dp.png";
     private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_white_48dp.png";
-    private static final String ICON_DONE    = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_white_48dp.png";
+    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_white_48dp.png";
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
-    private Project             project;
-    private IconModel           model;
+    private Project project;
+    private IconModel model;
     private Map<String, String> colorPaletteMap;
 
-    private JPanel                    panelMain;
-    private JLabel                    imageLabel;
-    private JComboBox                 comboBoxDp;
-    private JComboBox                 comboBoxColor;
-    private JTextField                textFieldColorCode;
-    private JCheckBox                 checkBoxMdpi;
-    private FilterComboBox            comboBoxIcon;
-    private JTextField                textFieldFileName;
-    private JCheckBox                 checkBoxHdpi;
-    private JCheckBox                 checkBoxXhdpi;
-    private JCheckBox                 checkBoxXxhdpi;
-    private JLabel                    labelOverview;
-    private JLabel                    labelRepository;
-    private JCheckBox                 checkBoxXxxhdpi;
+    private JPanel panelMain;
+    private JLabel imageLabel;
+    private JComboBox comboBoxDp;
+    private JComboBox comboBoxColor;
+    private JTextField textFieldColorCode;
+    private FilterComboBox comboBoxIcon;
+    private JTextField textFieldFileName;
+    private JLabel labelOverview;
+    private JLabel labelRepository;
+    private JCheckBox checkBoxXxxhdpi;
     private TextFieldWithBrowseButton resDirectoryName;
+
+    private JRadioButton radioImage;
+    private JPanel panelImageSize;
+    private JCheckBox checkBoxMdpi;
+    private JCheckBox checkBoxHdpi;
+    private JCheckBox checkBoxXhdpi;
+    private JCheckBox checkBoxXxhdpi;
+
+    private JRadioButton radioVector;
+    private JPanel panelVector;
+    private JCheckBox checkBoxDrawable;
+    private JCheckBox checkBoxDrawableV21;
+    private JCheckBox checkBoxDrawableNoDpi;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
@@ -223,7 +232,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private void initResDirectoryName() {
         resDirectoryName.setText(project.getBasePath() + DEFAULT_RES_DIR);
-        List<AndroidFacet> facets =  AndroidUtils.getApplicationFacets(project);
+        List<AndroidFacet> facets = AndroidUtils.getApplicationFacets(project);
         // This code needs refined to support multiple facets and multiple resource directories
         if (facets.size() >= 1) {
             List<VirtualFile> allResourceDirectories = facets.get(0).getAllResourceDirectories();
