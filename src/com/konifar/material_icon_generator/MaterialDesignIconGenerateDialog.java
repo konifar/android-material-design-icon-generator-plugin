@@ -29,9 +29,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -68,9 +66,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_CUSTOM_COLOR = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
     private static final String PACKAGE = "/com/konifar/material_icon_generator/";
-    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_white_48dp.png";
-    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_white_48dp.png";
-    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_white_48dp.png";
+    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_24dp.png";
+    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_black_24dp.png";
+    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_black_24dp.png";
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
@@ -182,7 +180,10 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         checkBoxXxhdpi.setEnabled(!shouldVectorSelected);
         checkBoxXxxhdpi.setEnabled(!shouldVectorSelected);
 
-        if (model != null) model.setVectorType(shouldVectorSelected);
+        if (model != null) {
+            model.setVectorTypeAndFileName(shouldVectorSelected);
+            textFieldFileName.setText(model.getFileName());
+        }
     }
 
     private void initSizeCheckBox() {
@@ -508,11 +509,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void create() {
-        if (model.isMdpi()) createIcon(checkBoxMdpi.getText());
-        if (model.isHdpi()) createIcon(checkBoxHdpi.getText());
-        if (model.isXhdpi()) createIcon(checkBoxXhdpi.getText());
-        if (model.isXxhdpi()) createIcon(checkBoxXxhdpi.getText());
-        if (model.isXxxhdpi()) createIcon(checkBoxXxxhdpi.getText());
+        createIcons();
 
         JOptionPane.showConfirmDialog(panelMain,
                 "Icon created successfully.",
@@ -520,6 +517,20 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 new ImageIcon(getClass().getResource(ICON_DONE)));
+    }
+
+    private void createIcons() {
+        if (model.isVectorType()) {
+            if (model.isDrawable()) createVectorIcon(checkBoxDrawable.getText());
+            if (model.isDrawableV21()) createVectorIcon(checkBoxDrawableV21.getText());
+            if (model.isDrawableNoDpi()) createVectorIcon(checkBoxDrawableNoDpi.getText());
+        } else {
+            if (model.isMdpi()) createImageIcon(checkBoxMdpi.getText());
+            if (model.isHdpi()) createImageIcon(checkBoxHdpi.getText());
+            if (model.isXhdpi()) createImageIcon(checkBoxXhdpi.getText());
+            if (model.isXxhdpi()) createImageIcon(checkBoxXxhdpi.getText());
+            if (model.isXxxhdpi()) createImageIcon(checkBoxXxxhdpi.getText());
+        }
     }
 
     private boolean alreadyFileExists() {
@@ -536,7 +547,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         return false;
     }
 
-    private boolean createIcon(String size) {
+    private boolean createImageIcon(String size) {
         File copyFile = new File(model.getCopyPath(project, size));
         String path = model.getLocalPath(size);
         try {
@@ -546,6 +557,39 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
+        }
+    }
+
+    private boolean createVectorIcon(String vectorDrawableDir) {
+        File copyFile = new File(model.getVectorCopyPath(project, vectorDrawableDir));
+        String path = model.getVectorLocalPath();
+        try {
+            new File(copyFile.getParent()).mkdirs();
+            copyVectorFile(path, copyFile);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void copyVectorFile(String originalPath, File destFile) throws IOException {
+        InputStream is = getClass().getResourceAsStream(originalPath);
+        OutputStream os = new FileOutputStream(destFile);
+
+        int len = -1;
+        byte[] b = new byte[1000 * 1024];
+        try {
+            while ((len = is.read(b, 0, b.length)) != -1) {
+                os.write(b, 0, len);
+            }
+            os.flush();
+        } finally {
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

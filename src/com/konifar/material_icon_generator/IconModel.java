@@ -23,8 +23,11 @@ public class IconModel {
 
     private static final String PATH_ICONS = "icons";
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
+    private static final String VECTOR_SIZE_NAME = "anydpi-v21";
+    private static final String VECTOR_DEFAULT_DP = "24dp";
     private static final String UNDERBAR = "_";
     private static final String PNG_SUFFIX = ".png";
+    private static final String XML_SUFFIX = ".xml";
     private static final String BLACK = "black";
 
     private String iconName;
@@ -83,12 +86,17 @@ public class IconModel {
             sb.append(PATH_ICONS);
 
             String[] fileString = iconName.split("/");
-            sb.append(getLocalDrawabaleIconPath(getIconName(fileString[1]), size));
+            String iconName = isVectorType ? getVectorIconName(fileString[1]) : getImageIconName(fileString[1]);
+            sb.append(getLocalDrawabaleIconPath(iconName, size));
 
             return sb.toString();
         } else {
             return "";
         }
+    }
+
+    public String getVectorLocalPath() {
+        return getLocalPath(VECTOR_SIZE_NAME);
     }
 
     private String getLocalDrawabaleIconPath(String fileName, String size) {
@@ -104,18 +112,27 @@ public class IconModel {
         return sb.toString();
     }
 
-    private String getIconName(String shortName) {
+    private String getImageIconName(String shortName) {
         return getIconName(shortName, BLACK);
     }
 
+    private String getVectorIconName(String shortName) {
+        return getIconName(shortName, BLACK, VECTOR_DEFAULT_DP, XML_SUFFIX);
+    }
+
     private String getIconName(String shortName, String colorName) {
+        String suffix = isVectorType ? XML_SUFFIX : PNG_SUFFIX;
+        return getIconName(shortName, colorName, this.dp, suffix);
+    }
+
+    private String getIconName(String shortName, String colorName, String dp, String suffix) {
         StringBuilder sb = new StringBuilder();
         sb.append(shortName);
         sb.append(UNDERBAR);
         sb.append(colorName);
         sb.append(UNDERBAR);
         sb.append(dp);
-        sb.append(PNG_SUFFIX);
+        sb.append(suffix);
         return sb.toString();
     }
 
@@ -129,6 +146,17 @@ public class IconModel {
         sb.append(File.separator);
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);
+        sb.append(File.separator);
+        sb.append(fileName);
+
+        return sb.toString();
+    }
+
+    public String getVectorCopyPath(Project project, String dir) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResourcePath(project));
+        sb.append(File.separator);
+        sb.append(dir);
         sb.append(File.separator);
         sb.append(fileName);
 
@@ -154,6 +182,12 @@ public class IconModel {
 
     public void setDisplayColorName(String displayColorName) {
         this.displayColorName = displayColorName;
+        String[] fileString = iconName.split("/");
+        if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
+    }
+
+    public void setVectorTypeAndFileName(boolean vectorType) {
+        isVectorType = vectorType;
         String[] fileString = iconName.split("/");
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
@@ -220,10 +254,6 @@ public class IconModel {
 
     public boolean isVectorType() {
         return isVectorType;
-    }
-
-    public void setVectorType(boolean vectorType) {
-        isVectorType = vectorType;
     }
 
     public boolean isDrawable() {
