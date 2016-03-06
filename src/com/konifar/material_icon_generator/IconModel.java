@@ -81,19 +81,25 @@ public class IconModel {
         this.drawableNoDpi = drawableNoDpi;
     }
 
-    public String getLocalPath(String size) {
+    public String getLocalPath(String size, boolean shouldForcePng) {
         if (iconName != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(PATH_ICONS);
 
             String[] fileString = iconName.split("/");
-            String iconName = isVectorType ? getVectorIconName(fileString[1]) : getImageIconName(fileString[1]);
+            String iconName = isVectorType && !shouldForcePng
+                    ? getVectorIconName(fileString[1])
+                    : getImageIconName(fileString[1]);
             sb.append(getLocalDrawabaleIconPath(iconName, size));
 
             return sb.toString();
         } else {
             return "";
         }
+    }
+
+    public String getLocalPath(String size) {
+        return getLocalPath(size, false);
     }
 
     public String getVectorLocalPath() {
@@ -114,7 +120,7 @@ public class IconModel {
     }
 
     private String getImageIconName(String shortName) {
-        return getIconName(shortName, BLACK);
+        return getIconName(shortName, BLACK, dp, PNG_SUFFIX);
     }
 
     private String getVectorIconName(String shortName) {

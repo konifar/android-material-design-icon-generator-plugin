@@ -454,7 +454,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         try {
             String size = checkBoxXxhdpi.getText();
-            InputStream is = getClass().getResourceAsStream(model.getLocalPath(size));
+            InputStream is = getClass().getResourceAsStream(model.getLocalPath(size, true));
             BufferedImage img = generateColoredIcon(ImageIO.read(is));
             ImageIcon icon = new ImageIcon(img);
             imageLabel.setIcon(icon);
