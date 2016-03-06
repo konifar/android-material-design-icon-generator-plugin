@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -30,10 +31,7 @@ import javax.swing.plaf.basic.ComboPopup;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
@@ -606,6 +604,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 rootAttrs.getNamedItem("android:viewportHeight").setTextContent(viewportSize); // 24.0
             }
 
+            // Edit color
             NodeList nodeList = rootElement.getElementsByTagName("path");
             for (int i = 0, size = nodeList.getLength(); i < size; i++) {
                 NamedNodeMap pathAttrs = nodeList.item(i).getAttributes();
@@ -618,6 +617,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             // Write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "4");
             StreamResult result = new StreamResult(destFile);
             transformer.transform(new DOMSource(doc), result);
         } catch (ParserConfigurationException e) {
