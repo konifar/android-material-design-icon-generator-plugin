@@ -116,6 +116,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initDpComboBox();
         initFileName();
         initResDirectoryName();
+        initImageTypeRadioButton();
         initSizeCheckBox();
         initFileCustomColor();
 
@@ -129,6 +130,56 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         showIconPreview();
 
         init();
+    }
+
+    private void initImageTypeRadioButton() {
+        radioImage.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                toggleImageType(!radioImage.isSelected());
+            }
+        });
+
+        radioVector.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                toggleImageType(radioVector.isSelected());
+            }
+        });
+
+        panelImageSize.addMouseListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                toggleImageType(radioImage.isSelected());
+            }
+        });
+
+        panelVector.addMouseListener(new MouseClickListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                toggleImageType(!radioVector.isSelected());
+            }
+        });
+
+        radioImage.setSelected(true);
+    }
+
+    private void toggleImageType(boolean shouldVectorSelected) {
+        radioVector.setSelected(shouldVectorSelected);
+        radioImage.setSelected(!shouldVectorSelected);
+
+        panelVector.setEnabled(shouldVectorSelected);
+        panelImageSize.setEnabled(!shouldVectorSelected);
+
+        checkBoxDrawable.setEnabled(shouldVectorSelected);
+        checkBoxDrawableV21.setEnabled(shouldVectorSelected);
+        checkBoxDrawableNoDpi.setEnabled(shouldVectorSelected);
+
+        checkBoxHdpi.setEnabled(!shouldVectorSelected);
+        checkBoxMdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXhdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXxhdpi.setEnabled(!shouldVectorSelected);
+        checkBoxXxxhdpi.setEnabled(!shouldVectorSelected);
     }
 
     private void initSizeCheckBox() {
