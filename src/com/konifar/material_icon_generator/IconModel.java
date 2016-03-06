@@ -29,6 +29,7 @@ public class IconModel {
     private static final String PNG_SUFFIX = ".png";
     private static final String XML_SUFFIX = ".xml";
     private static final String BLACK = "black";
+    private static final String DP = "dp";
 
     private String iconName;
     private String displayColorName;
@@ -234,6 +235,18 @@ public class IconModel {
 
     public void setXxxhdpi(boolean xxxhdpi) {
         this.xxxhdpi = xxxhdpi;
+    }
+
+    public String getDp() {
+        return dp;
+    }
+
+    public String getViewportSize() {
+        if (dp != null) {
+            return dp.replace(DP, "") + ".0";
+        } else {
+            return null;
+        }
     }
 
     public String getFileName() {

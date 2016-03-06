@@ -245,7 +245,7 @@
             </constraints>
             <properties>
               <margin top="1" left="1" bottom="0" right="8"/>
-              <selected value="true"/>
+              <selected value="false"/>
               <text value="drawable-v21"/>
             </properties>
           </component>
@@ -254,7 +254,7 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <selected value="true"/>
+              <selected value="false"/>
               <text value="drawable-nodpi"/>
             </properties>
           </component>

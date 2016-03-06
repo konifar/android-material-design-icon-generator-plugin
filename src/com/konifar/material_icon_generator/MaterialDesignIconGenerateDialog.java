@@ -15,6 +15,10 @@ import org.jdom.JDOMException;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
@@ -23,6 +27,15 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.ComboPopup;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -566,10 +579,57 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         try {
             new File(copyFile.getParent()).mkdirs();
             copyVectorFile(path, copyFile);
+            changeColorAndSize(copyFile);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException(e);
+        }
+    }
+
+    private void changeColorAndSize(File destFile) {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+            org.w3c.dom.Document doc = docBuilder.parse(destFile.getAbsolutePath());
+
+            // Edit Size
+            org.w3c.dom.Element rootElement = doc.getDocumentElement();
+            NamedNodeMap rootAttrs = rootElement.getAttributes();
+            rootAttrs.getNamedItem("android:width").setTextContent(model.getDp()); // 24dp
+            rootAttrs.getNamedItem("android:height").setTextContent(model.getDp()); // 24dp
+
+            String viewportSize = model.getViewportSize();
+            if (viewportSize != null) {
+                rootAttrs.getNamedItem("android:viewportWidth").setTextContent(viewportSize); // 24.0
+                rootAttrs.getNamedItem("android:viewportHeight").setTextContent(viewportSize); // 24.0
+            }
+
+            NodeList nodeList = rootElement.getElementsByTagName("path");
+            for (int i = 0, size = nodeList.getLength(); i < size; i++) {
+                NamedNodeMap pathAttrs = nodeList.item(i).getAttributes();
+                if (pathAttrs != null) {
+                    Node node = pathAttrs.getNamedItem("android:fillColor");
+                    if (node != null) node.setTextContent(model.getColorCode());
+                }
+            }
+
+            // Write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            StreamResult result = new StreamResult(destFile);
+            transformer.transform(new DOMSource(doc), result);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
         }
     }
 
