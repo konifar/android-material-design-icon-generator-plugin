@@ -25,6 +25,7 @@ public class IconModel {
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
     private static final String VECTOR_SIZE_NAME = "anydpi-v21";
     private static final String VECTOR_DEFAULT_DP = "24dp";
+    private static final String VECTOR_VIEWPORT_SIZE = "24.0";
     private static final String UNDERBAR = "_";
     private static final String PNG_SUFFIX = ".png";
     private static final String XML_SUFFIX = ".xml";
@@ -248,11 +249,7 @@ public class IconModel {
     }
 
     public String getViewportSize() {
-        if (dp != null) {
-            return dp.replace(DP, "") + ".0";
-        } else {
-            return null;
-        }
+        return VECTOR_VIEWPORT_SIZE;
     }
 
     public String getFileName() {
