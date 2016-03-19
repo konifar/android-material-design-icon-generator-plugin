@@ -3,7 +3,7 @@ import shutil
 from os.path import join
 
 icons_root_dir = "./material-design-icons"
-output_root_dir = "./src/com/konifar/material_icon_generator/icons"
+output_root_dir = "./src/main/resources/icons"
 drawables = ["anydpi-v21", "hdpi", "mdpi", "xhdpi", "xxhdpi", "xxxhdpi"]
 
 category_dirs = [f for f in os.listdir(icons_root_dir) if os.path.isdir(join(icons_root_dir, f))]

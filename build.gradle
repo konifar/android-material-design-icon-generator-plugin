@@ -1,0 +1,29 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.0.43"
+}
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'java'
+
+compileJava {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+intellij {
+    plugins 'android'
+    pluginName 'android-material-design-icon-generator-plugin'
+}
+
+group 'com.konifar'
+version '1.6'
+
+repositories {
+    mavenCentral()
+}

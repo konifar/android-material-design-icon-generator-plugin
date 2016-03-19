@@ -1,0 +1,11 @@
+general:
+  branches:
+    only: ['master']
+  artifacts:
+    - 'build/libs'
+machine:
+  java:
+    version: openjdk7
+test:
+  override:
+    - ./gradlew build --debug

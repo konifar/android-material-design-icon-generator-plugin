@@ -21,7 +21,7 @@ import java.io.File;
  */
 public class IconModel {
 
-    private static final String PATH_ICONS = "icons";
+    private static final String PATH_ICONS = "/icons";
     private static final String PATH_DRAWABLE_PREFIX = "drawable-";
     private static final String VECTOR_SIZE_NAME = "anydpi-v21";
     private static final String VECTOR_DEFAULT_DP = "24dp";
