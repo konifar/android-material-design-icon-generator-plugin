@@ -8,7 +8,7 @@ category_dirs.remove("iconfont")
 category_dirs.remove("sprites")
 category_dirs.remove("www")
 
-template_file = open('./src/com/konifar/material_icon_generator/template.xml', 'w')
+template_file = open('./src/main/resources/template.xml', 'w')
 template_file.write('<?xml version="1.0"?>\n')
 template_file.write('<icons default="action/ic_3d_rotation">\n\n')
 
