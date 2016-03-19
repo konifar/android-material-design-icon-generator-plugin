@@ -65,8 +65,8 @@ import java.util.Map;
 public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private static final String TITLE = "Material Icon Generator";
-    private static final String FILE_ICON_COMBOBOX_XML = "template.xml";
-    private static final String COLOR_PALETTE_COMBOBOX_XML = "palette.xml";
+    private static final String FILE_ICON_COMBOBOX_XML = "/template.xml";
+    private static final String COLOR_PALETTE_COMBOBOX_XML = "/palette.xml";
 
     private static final String URL_OVERVIEW = "http://google.github.io/material-design-icons";
     private static final String URL_REPOSITORY = "https://github.com/google/material-design-icons";
@@ -76,10 +76,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
     private static final String ERROR_CUSTOM_COLOR = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
 
-    private static final String PACKAGE = "/com/konifar/material_icon_generator/";
-    private static final String ICON_CONFIRM = PACKAGE + "icons/toggle/drawable-mdpi/ic_check_box_black_24dp.png";
-    private static final String ICON_WARNING = PACKAGE + "icons/alert/drawable-mdpi/ic_error_black_24dp.png";
-    private static final String ICON_DONE = PACKAGE + "icons/action/drawable-mdpi/ic_thumb_up_black_24dp.png";
+    private static final String ICON_CONFIRM = "/icons/toggle/drawable-mdpi/ic_check_box_black_24dp.png";
+    private static final String ICON_WARNING = "/icons/alert/drawable-mdpi/ic_error_black_24dp.png";
+    private static final String ICON_DONE = "/icons/action/drawable-mdpi/ic_thumb_up_black_24dp.png";
 
     private static final String DEFAULT_RES_DIR = "/app/src/main/res";
 
