@@ -109,7 +109,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private JPanel panelVector;
     private JCheckBox checkBoxDrawable;
     private JCheckBox checkBoxDrawableV21;
-    private JCheckBox checkBoxDrawableNoDpi;
 
     public MaterialDesignIconGenerateDialog(@Nullable final Project project) {
         super(project, true);
@@ -182,7 +181,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
         checkBoxDrawable.setEnabled(shouldVectorSelected);
         checkBoxDrawableV21.setEnabled(shouldVectorSelected);
-        checkBoxDrawableNoDpi.setEnabled(shouldVectorSelected);
 
         checkBoxHdpi.setEnabled(!shouldVectorSelected);
         checkBoxMdpi.setEnabled(!shouldVectorSelected);
@@ -245,13 +243,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             @Override
             public void itemStateChanged(ItemEvent event) {
                 if (model != null) model.setDrawableV21(checkBoxDrawableV21.isSelected());
-            }
-        });
-
-        checkBoxDrawableNoDpi.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent event) {
-                if (model != null) model.setDrawableNoDpi(checkBoxDrawableNoDpi.isSelected());
             }
         });
     }
@@ -440,10 +431,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         final boolean isVectorType = radioVector.isSelected();
         final boolean drawable = checkBoxDrawable.isSelected();
         final boolean drawableV21 = checkBoxDrawableV21.isSelected();
-        final boolean drawableNoDpi = checkBoxDrawableNoDpi.isSelected();
 
         return new IconModel(iconName, displayColorName, colorCode, dp, fileName, resDir,
-                mdpi, hdpi, xdpi, xxdpi, xxxdpi, isVectorType, drawable, drawableV21, drawableNoDpi);
+                mdpi, hdpi, xdpi, xxdpi, xxxdpi, isVectorType, drawable, drawableV21);
     }
 
     private void showIconPreview() {
@@ -533,7 +523,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         if (model.isVectorType()) {
             if (model.isDrawable()) createVectorIcon(checkBoxDrawable.getText());
             if (model.isDrawableV21()) createVectorIcon(checkBoxDrawableV21.getText());
-            if (model.isDrawableNoDpi()) createVectorIcon(checkBoxDrawableNoDpi.getText());
         } else {
             if (model.isMdpi()) createImageIcon(checkBoxMdpi.getText());
             if (model.isHdpi()) createImageIcon(checkBoxHdpi.getText());
