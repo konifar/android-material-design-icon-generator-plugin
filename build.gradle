@@ -18,11 +18,19 @@ compileJava {
 
 intellij {
     plugins 'android'
-    pluginName 'android-material-design-icon-generator-plugin'
+    pluginName 'Android Material Design Icon Generator'
+    updateSinceUntilBuild false
+    sameSinceUntilBuild false
+
+    publish {
+        pluginId '7947'
+        username publishUsername
+        password publishPassword
+    }
 }
 
 group 'com.konifar'
-version '1.6'
+version '1.7'
 
 repositories {
     mavenCentral()

@@ -1,7 +1,7 @@
 <idea-plugin version="3">
     <id>com.konifar.material_icon_generator</id>
     <name>Android Material Design Icon Generator</name>
-    <version>1.6</version>
+    <version>1.7</version>
     <vendor email="yahpeycoy0403@gmail.com"
             url="https://github.com/konifar/android-material-design-icon-generator-plugin">Android
         Material Design Icon Generator
@@ -12,6 +12,7 @@
       ]]></description>
 
     <change-notes><![CDATA[
+      1.7: Fixed vector icons bug.<br>
       1.6: Support vector icons & Fixed bug.<br>
       1.5: Added new material design icons 2.2.<br>
       1.4: Added new material design icons 2.1.<br>
