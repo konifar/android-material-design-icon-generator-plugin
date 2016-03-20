@@ -48,7 +48,6 @@ public class IconModel {
     private boolean isVectorType;
     private boolean drawable;
     private boolean drawableV21;
-    private boolean drawableNoDpi;
 
     public IconModel(String iconName,
                      String displayColorName,
@@ -63,8 +62,7 @@ public class IconModel {
                      boolean xxxhdpi,
                      boolean isVectorType,
                      boolean drawable,
-                     boolean drawableV21,
-                     boolean drawableNoDpi) {
+                     boolean drawableV21) {
         this.iconName = iconName;
         this.displayColorName = displayColorName;
         this.colorCode = colorCode;
@@ -79,7 +77,6 @@ public class IconModel {
         this.isVectorType = isVectorType;
         this.drawable = drawable;
         this.drawableV21 = drawableV21;
-        this.drawableNoDpi = drawableNoDpi;
     }
 
     public String getLocalPath(String size, boolean shouldForcePng) {
@@ -288,11 +285,4 @@ public class IconModel {
         this.drawableV21 = drawableV21;
     }
 
-    public boolean isDrawableNoDpi() {
-        return drawableNoDpi;
-    }
-
-    public void setDrawableNoDpi(boolean drawableNoDpi) {
-        this.drawableNoDpi = drawableNoDpi;
-    }
 }
