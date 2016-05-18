@@ -1,6 +1,13 @@
 import os
 import shutil
+import argparse
 from os.path import join
+
+p = argparse.ArgumentParser()
+p.add_argument('-v', action='store_true', help="output log to console")
+
+args = p.parse_args()
+verbose = args.v
 
 icons_root_dir = "./material-design-icons"
 output_root_dir = "./src/main/resources/icons"
@@ -23,5 +30,6 @@ for category in category_dirs:
 
         icons = [icon for icon in os.listdir(icons_dir + "/") if '_black_' in icon]
         for icon in icons:
-          print output_dir_path + "/" + icon
+          if verbose:
+            print output_dir_path + "/" + icon
           shutil.copyfile(icons_dir + "/" + icon, output_dir_path + "/" + icon)
