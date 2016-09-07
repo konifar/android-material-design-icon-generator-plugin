@@ -132,18 +132,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         initLabelLink(labelOverview, URL_OVERVIEW);
         initLabelLink(labelRepository, URL_REPOSITORY);
 
-        comboBoxDp.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent event) {
-                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
-                        && AccessibleState.FOCUSED.equals(event.getNewValue())
-                        && comboBoxDp.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
-                    ComboPopup popup = (ComboPopup) comboBoxDp.getAccessibleContext().getAccessibleChild(0);
-                    JList list = popup.getList();
-                    comboBoxDp.setSelectedItem(String.valueOf(list.getSelectedValue()));
-                }
-            }
-        });
-
         model = createModel();
 
         model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
@@ -366,6 +354,17 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             }
         });
 
+        comboBoxDp.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
+                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
+                        && AccessibleState.FOCUSED.equals(event.getNewValue())
+                        && comboBoxDp.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
+                    ComboPopup popup = (ComboPopup) comboBoxDp.getAccessibleContext().getAccessibleChild(0);
+                    JList list = popup.getList();
+                    comboBoxDp.setSelectedItem(String.valueOf(list.getSelectedValue()));
+                }
+            }
+        });
     }
 
     private void initColorComboBox() {
@@ -386,6 +385,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        comboBoxColor.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent event) {
+                if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
+                        && AccessibleState.FOCUSED.equals(event.getNewValue())
+                        && comboBoxColor.getAccessibleContext().getAccessibleChild(0) instanceof ComboPopup) {
+                    ComboPopup popup = (ComboPopup) comboBoxColor.getAccessibleContext().getAccessibleChild(0);
+                    JList list = popup.getList();
+                    comboBoxColor.setSelectedItem(String.valueOf(list.getSelectedValue()));
+                }
+            }
+        });
 
         comboBoxColor.addActionListener(new ActionListener() {
             @Override
