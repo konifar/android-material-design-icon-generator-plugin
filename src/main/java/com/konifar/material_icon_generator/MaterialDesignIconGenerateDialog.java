@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.JDOMUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
 import org.apache.commons.lang.StringUtils;
@@ -385,18 +386,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             e.printStackTrace();
         }
 
-        comboBoxColor.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                if (model != null) {
-                    model.setDisplayColorName((String) comboBoxColor.getSelectedItem());
-                    String value = colorPaletteMap.get(comboBoxColor.getSelectedItem());
-                    textFieldColorCode.setText(value);
-                    textFieldFileName.setText(model.getFileName());
-                }
-            }
-        });
-
         comboBoxColor.getAccessibleContext().addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent event) {
                 if (AccessibleContext.ACCESSIBLE_STATE_PROPERTY.equals(event.getPropertyName())
@@ -405,6 +394,18 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                     ComboPopup popup = (ComboPopup) comboBoxColor.getAccessibleContext().getAccessibleChild(0);
                     JList list = popup.getList();
                     comboBoxColor.setSelectedItem(String.valueOf(list.getSelectedValue()));
+                }
+            }
+        });
+
+        comboBoxColor.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (model != null) {
+                    model.setDisplayColorName((String) comboBoxColor.getSelectedItem());
+                    String value = colorPaletteMap.get(comboBoxColor.getSelectedItem());
+                    textFieldColorCode.setText(value);
+                    textFieldFileName.setText(model.getFileName());
                 }
             }
         });
@@ -517,6 +518,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 new ImageIcon(getClass().getResource(ICON_DONE)));
+
+        LocalFileSystem.getInstance().refresh(true);
     }
 
     private void createIcons() {
