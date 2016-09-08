@@ -345,6 +345,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initDpComboBox() {
+        comboBoxDp.setSelectedIndex(1);         // 24dp
+
         comboBoxDp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
