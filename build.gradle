@@ -30,7 +30,7 @@ intellij {
 }
 
 group 'com.konifar'
-version '1.7'
+version '1.9'
 
 repositories {
     mavenCentral()
