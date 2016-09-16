@@ -17,7 +17,6 @@ category_dirs = [f for f in os.listdir(icons_root_dir) if os.path.isdir(join(ico
 # Remove not android icons dir.
 category_dirs.remove("iconfont")
 category_dirs.remove("sprites")
-category_dirs.remove("www")
 
 for category in category_dirs:
     for drawable in drawables:

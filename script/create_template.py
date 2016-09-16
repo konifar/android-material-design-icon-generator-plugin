@@ -6,7 +6,6 @@ category_dirs = [f for f in os.listdir(icons_root_dir) if os.path.isdir(join(ico
 # Remove not android icons dir.
 category_dirs.remove("iconfont")
 category_dirs.remove("sprites")
-category_dirs.remove("www")
 
 template_file = open('./src/main/resources/template.xml', 'w')
 template_file.write('<?xml version="1.0"?>\n')
