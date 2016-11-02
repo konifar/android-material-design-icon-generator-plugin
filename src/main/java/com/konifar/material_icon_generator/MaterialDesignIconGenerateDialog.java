@@ -76,6 +76,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private static final String ERROR_SIZE_CHECK_EMPTY = "Please check icon size.";
     private static final String ERROR_RESOURCE_DIR_NOTHING_PREFIX = "Can not find resource dir: ";
     private static final String ERROR_CUSTOM_COLOR = "Can not parse custom color. Please provide color in hex format (#FFFFFF).";
+    private static final String OK_BUTTON_LABEL = "Generate";
+    private static final String CANCEL_BUTTON_LABEL = "Close";
 
     private static final String ICON_CONFIRM = "/icons/toggle/drawable-mdpi/ic_check_box_black_24dp.png";
     private static final String ICON_WARNING = "/icons/alert/drawable-mdpi/ic_error_black_24dp.png";
@@ -137,6 +139,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         model.setIconAndFileName((String) comboBoxIcon.getSelectedItem());
         textFieldFileName.setText(model.getFileName());
         showIconPreview();
+
+        setOKButtonText(OK_BUTTON_LABEL);
+        setCancelButtonText(CANCEL_BUTTON_LABEL);
 
         init();
     }
