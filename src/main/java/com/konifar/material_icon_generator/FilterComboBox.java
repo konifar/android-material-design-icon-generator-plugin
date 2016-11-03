@@ -1,7 +1,5 @@
 package com.konifar.material_icon_generator;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.swing.*;
@@ -33,7 +31,7 @@ public class FilterComboBox extends JComboBox {
     private List<String> comboBoxList;
 
     public FilterComboBox() {
-        this(new ArrayList<String>());
+        this(new ArrayList<>());
     }
 
     public FilterComboBox(List<String> comboBoxList) {
@@ -84,7 +82,7 @@ public class FilterComboBox extends JComboBox {
     }
 
     public void filter(String inputText) {
-        List<String> filterList = new ArrayList<String>();
+        List<String> filterList = new ArrayList<>();
         for (String text : comboBoxList) {
             if (text.toLowerCase().contains(inputText.toLowerCase())) {
                 filterList.add(text);
