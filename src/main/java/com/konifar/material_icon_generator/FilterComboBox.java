@@ -31,7 +31,7 @@ public class FilterComboBox extends JComboBox {
     private List<String> comboBoxList;
 
     public FilterComboBox() {
-        this(new ArrayList<>());
+        this(new ArrayList<String>());
     }
 
     public FilterComboBox(List<String> comboBoxList) {
