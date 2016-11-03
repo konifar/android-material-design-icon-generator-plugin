@@ -106,13 +106,13 @@ public class IconModel {
 
     private String getLocalDrawableIconPath(String fileName, String size) {
         StringBuilder sb = new StringBuilder();
-        sb.append(File.separator);
+        sb.append("/");
         String[] fileString = iconName.split("/");
         sb.append(fileString[0]);
-        sb.append(File.separator);
+        sb.append("/");
         sb.append(PATH_DRAWABLE_PREFIX);
         sb.append(size);
-        sb.append(File.separator);
+        sb.append("/");
         sb.append(fileName);
         return sb.toString();
     }
