@@ -82,7 +82,7 @@ public class FilterComboBox extends JComboBox {
     }
 
     public void filter(String inputText) {
-        List<String> filterList = new ArrayList<>();
+        List<String> filterList = new ArrayList<String>();
         for (String text : comboBoxList) {
             if (text.toLowerCase().contains(inputText.toLowerCase())) {
                 filterList.add(text);

@@ -375,7 +375,7 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initColorComboBox() {
-        colorPaletteMap = new HashMap<>();
+        colorPaletteMap = new HashMap<String, String>();
 
         try {
             Document doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(COLOR_PALETTE_COMBOBOX_XML));
@@ -386,7 +386,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                 colorPaletteMap.put(key, element.getText());
                 comboBoxColor.addItem(key);
             }
-        } catch (JDOMException | IOException e) {
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -469,7 +471,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             for (org.jdom.Element element : elements) {
                 comboBoxIcon.addItem(element.getText());
             }
-        } catch (JDOMException | IOException e) {
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -612,7 +616,13 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             transformer.setOutputProperty(OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "4");
             StreamResult result = new StreamResult(destFile);
             transformer.transform(new DOMSource(doc), result);
-        } catch (ParserConfigurationException | SAXException | TransformerException | IOException e) {
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -712,7 +722,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
                         try {
                             URI uri = new URI(url);
                             desktop.browse(uri);
-                        } catch (IOException | URISyntaxException e) {
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (URISyntaxException e) {
                             e.printStackTrace();
                         }
                     }
