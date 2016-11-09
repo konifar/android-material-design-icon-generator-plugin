@@ -88,7 +88,7 @@ public class IconModel {
             String iconName = isVectorType && !shouldForcePng
                     ? getVectorIconName(fileString[1])
                     : getImageIconName(fileString[1]);
-            sb.append(getLocalDrawabaleIconPath(iconName, size));
+            sb.append(getLocalDrawableIconPath(iconName, size));
 
             return sb.toString();
         } else {
@@ -104,7 +104,7 @@ public class IconModel {
         return getLocalPath(VECTOR_SIZE_NAME);
     }
 
-    private String getLocalDrawabaleIconPath(String fileName, String size) {
+    private String getLocalDrawableIconPath(String fileName, String size) {
         StringBuilder sb = new StringBuilder();
         sb.append("/");
         String[] fileString = iconName.split("/");
@@ -174,26 +174,27 @@ public class IconModel {
             this.fileName = "";
         } else {
             this.iconName = iconName;
-            String[] fileString = this.iconName.split("/");
-            if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
+            setFileNameFromIconName();
         }
     }
 
     public void setDpAndFileName(String dp) {
         this.dp = dp;
-        String[] fileString = iconName.split("/");
-        if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
+        setFileNameFromIconName();
     }
 
     public void setDisplayColorName(String displayColorName) {
         this.displayColorName = displayColorName;
-        String[] fileString = iconName.split("/");
-        if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
+        setFileNameFromIconName();
     }
 
     public void setVectorTypeAndFileName(boolean vectorType) {
         isVectorType = vectorType;
-        String[] fileString = iconName.split("/");
+        setFileNameFromIconName();
+    }
+
+    private void setFileNameFromIconName() {
+        String[] fileString = this.iconName.split("/");
         if (fileString.length > 1) this.fileName = getIconName(fileString[1], displayColorName);
     }
 

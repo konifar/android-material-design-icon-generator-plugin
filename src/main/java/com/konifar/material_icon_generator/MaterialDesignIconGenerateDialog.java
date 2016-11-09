@@ -377,9 +377,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     private void initColorComboBox() {
         colorPaletteMap = new HashMap<String, String>();
 
-        Document doc;
         try {
-            doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(COLOR_PALETTE_COMBOBOX_XML));
+            Document doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(COLOR_PALETTE_COMBOBOX_XML));
 
             List<Element> elements = doc.getRootElement().getChildren();
             for (org.jdom.Element element : elements) {
@@ -465,9 +464,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     }
 
     private void initIconComboBox() {
-        Document doc;
         try {
-            doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(FILE_ICON_COMBOBOX_XML));
+            Document doc = JDOMUtil.loadDocument(getClass().getResourceAsStream(FILE_ICON_COMBOBOX_XML));
 
             List<Element> elements = doc.getRootElement().getChildren();
             for (org.jdom.Element element : elements) {
@@ -585,9 +583,8 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
 
     private void changeColorAndSize(File destFile) {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = null;
         try {
-            docBuilder = docFactory.newDocumentBuilder();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             org.w3c.dom.Document doc = docBuilder.parse(destFile.getAbsolutePath());
 
             // Edit Size
@@ -623,11 +620,9 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
             e.printStackTrace();
         } catch (SAXException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
         } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

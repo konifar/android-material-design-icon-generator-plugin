@@ -1,7 +1,5 @@
 package com.konifar.material_icon_generator;
 
-import org.apache.commons.lang.StringUtils;
-
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleState;
 import javax.swing.*;
