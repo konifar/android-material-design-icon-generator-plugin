@@ -5,9 +5,9 @@ This plugin help you to set [material design icons](https://github.com/google/ma
 
 ![capture](https://raw.githubusercontent.com/konifar/android-material-design-icon-generator-plugin/master/docs/capture.gif)
 
-#Installation
+# Installation
 
-##Manually
+## Manually
 
 1. Download the [MaterialDesignIconGeneratorPlugin.zip](https://github.com/konifar/android-material-design-icon-generator-plugin/raw/master/MaterialDesignIconGeneratorPlugin.zip)
 
@@ -21,7 +21,7 @@ On Linux or Windows:
 
 3. Restart IntelliJ/Android Studio to activate plugin.
 
-##Install IntelliJ Plugin Repositories
+## Install IntelliJ Plugin Repositories
 
 On MAC:
 
@@ -47,7 +47,7 @@ $ python script/create_template.py
 
 
 
-#License
+# License
 
 ```
 Copyright 2014-2015 Yusuke Konishi
