@@ -495,8 +495,6 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
     protected void doOKAction() {
         if (model == null) return;
 
-        if (!isConfirmed()) return;
-
         if (alreadyFileExists()) {
             final int option = JOptionPane.showConfirmDialog(panelMain,
                     "File already exists, overwrite this ?",
@@ -755,19 +753,5 @@ public class MaterialDesignIconGenerateDialog extends DialogWrapper {
         }
 
         return null;
-    }
-
-    public boolean isConfirmed() {
-        Object[] options = {"Yes", "No"};
-        int option = JOptionPane.showOptionDialog(panelMain,
-                "Are you sure you want to generate '" + model.getFileName() + "' ?",
-                "Confirmation",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(getClass().getResource(ICON_CONFIRM)),
-                options,
-                options[0]);
-
-        return option == JOptionPane.OK_OPTION;
     }
 }
